@@ -61,7 +61,7 @@ const { items } = Astro.props;
     text-align: left;
   }
 
-  /* ── Scroll-reveal animation ── */
+  /* ── Swoosh in from sides ── */
   .fleet-card {
     display: grid;
     grid-template-columns: 1fr;
@@ -69,15 +69,17 @@ const { items } = Astro.props;
     border: 1.5px solid var(--color-border);
     background: #fff;
     opacity: 0;
-    transform: translateY(48px) scaleY(0.97);
-    transform-origin: top center;
+    transform: translateX(-120px);
     transition:
-      opacity 0.6s ease,
-      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 0.65s ease,
+      transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .fleet-card--reverse {
+    transform: translateX(120px);
   }
   .fleet-card.is-visible {
     opacity: 1;
-    transform: translateY(0) scaleY(1);
+    transform: translateX(0);
   }
 
   .fleet-img-wrap {
