@@ -1,0 +1,66 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ServiceSlider from '../components/ServiceSlider.astro';
+
+const slides = [
+  {
+    title: 'Line Maintenance',
+    sub: '24/7 on-call aircraft support to keep operations moving',
+    href: '/#line-maintenance',
+    img: '/images/heros/home-hero-1.jpg',
+    imgAlt: 'Private jet on the ramp',
+    panelColor: '#3A5A8C',
+  },
+  {
+    title: 'Interior Repair',
+    sub: 'On-site cabin interior repairs without downtime',
+    href: '/#interior',
+    img: '/images/heros/home-hero-2.webp',
+    imgAlt: 'Technician repairing leather seating in private jet cabin',
+    panelColor: '#8B6842',
+  },
+  {
+    title: 'Avionics Support',
+    sub: 'Troubleshoot, diagnose and maintain critical flight systems',
+    href: '/#avionics',
+    img: '/images/heros/home-hero-3.webp',
+    imgAlt: 'Avionics panel in a private jet cockpit',
+    panelColor: '#2A3A52',
+  },
+  {
+    title: 'Cleaning',
+    sub: 'Interior & exterior detailing, coordinated post-maintenance',
+    href: '/#cleaning',
+    img: '/images/heros/home-hero-3b.webp',
+    imgAlt: 'Private jet exterior being cleaned on the ramp',
+    panelColor: '#3A6155',
+  },
+];
+---
+
+<BaseLayout title="JetAvenue — Mobile Private Jet Maintenance" description="Professional, quality, reliable mobile aircraft maintenance. We come to you — Los Angeles, Arizona, and nationwide.">
+
+  <div class="welcome-strip">
+    <span>WELCOME TO JET AVENUE</span>
+  </div>
+
+  <ServiceSlider slides={slides} />
+
+</BaseLayout>
+
+<style>
+  .welcome-strip {
+    background: var(--color-surface);
+    text-align: center;
+    padding: 18px var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .welcome-strip span {
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: var(--color-body);
+    text-transform: uppercase;
+  }
+</style>

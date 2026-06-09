@@ -1,0 +1,97 @@
+<!--
+  SNIPPET: Hero with "cone drop" entrance animation
+  ==================================================
+  What it is:
+    A full-width hero section whose entire content block (text + image/video)
+    arrives as one unified piece — appearing oversized and blurred high above
+    the viewport, then "dropping" down through an upside-down-cone trajectory
+    until it lands crisp and in-focus at rest. Built after several rounds of
+    iteration; this is the user-approved final version ("that's it!").
+
+  Used on:
+    - index.html  (home page hero)
+    - sports.html (sports landing hero)
+
+  Requires (already in shared style.css — confirm the page links it):
+    .hero            — gives the section overflow:hidden so the oversized
+                       starting state of .hero-cone is clipped locally
+                       (DO NOT add overflow rules to html/body — breaks
+                       page scrolling site-wide, see CSS comment for why)
+    .hero-cone       — the animation itself (opacity/transform/blur + the
+                       cubic-bezier "overshoot and settle" easing)
+    .hero-play       — class toggled onto .hero by the trigger script below;
+                       defines the "landed" resting state
+    .hero-inner, .hero-text, .hero-image, .hero-cta, .hero-trust, etc.
+                     — standard hero layout classes already in style.css
+
+  Requires (JS — copy this trigger script before </body> if the page
+  doesn't already have an identical one):
+
+    <script>
+      (function () {
+        var hero = document.querySelector('.hero');
+        if (!hero) return;
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            hero.classList.add('hero-play');
+          });
+        });
+      })();
+    </script>
+
+  Placeholders to swap when reusing:
+    - .section-label text
+    - <h1> headline + <span class="accent"> emphasis word(s)
+    - .hero-sub description copy
+    - .hero-cta button hrefs/labels (keep the "Order Now →" / outline pattern)
+    - .hero-trust bullet copy
+    - hero media: swap the Vimeo iframe src(s) for the page's video, OR
+      replace .hero-image's contents with an <img> if the hero uses a still
+      image instead of video
+-->
+
+<section class="hero">
+  <div class="container hero-inner hero-cone">
+    <div class="hero-text">
+      <p class="section-label">YOUR EYEBROW / LABEL HERE</p>
+      <h1>Your Headline Goes<br><span class="accent">Right Here</span></h1>
+
+      <!-- Mobile-only hero video (desktop video lives in .hero-image) — omit
+           this whole block if the hero uses a static image instead -->
+      <div class="hero-video-mobile">
+        <div class="hero-video-mobile-wrap">
+          <iframe src="https://player.vimeo.com/video/VIDEO_ID?autoplay=1&muted=1&loop=1&background=1"
+            frameborder="0" allow="autoplay; fullscreen" allowfullscreen
+            style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;transition:opacity 0.4s;"
+            onload="this.style.opacity='1'">
+          </iframe>
+        </div>
+      </div>
+
+      <p class="hero-sub">One or two sentences of supporting copy that explains the value proposition for this page/section.</p>
+
+      <div class="hero-cta">
+        <a href="order.html" class="btn btn-primary btn-large">Order Now →</a>
+        <a href="#" class="btn btn-ghost" id="videoModalBtn">▶ See How It Works</a>
+      </div>
+
+      <div class="hero-trust">
+        <span>✓ Trust point one</span>
+        <span>✓ Trust point two</span>
+      </div>
+    </div>
+
+    <div class="hero-image">
+      <!-- Desktop hero video -->
+      <div class="hero-video-wrap">
+        <iframe src="https://player.vimeo.com/video/VIDEO_ID?autoplay=1&muted=1&loop=1&background=1"
+          frameborder="0" allow="autoplay; fullscreen" allowfullscreen
+          style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;transition:opacity 0.4s;"
+          onload="this.style.opacity='1'">
+        </iframe>
+      </div>
+      <!-- OR, for a static-image hero, replace the wrap above with:
+           <img src="assets/images/your-image.jpg" alt="Descriptive alt text" loading="lazy"> -->
+    </div>
+  </div>
+</section>

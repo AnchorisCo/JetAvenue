@@ -1,0 +1,49 @@
+/* ═══════════════════════════════════════════════
+   TOKENS.CSS — Brand Configuration for astro-1
+   ═══════════════════════════════════════════════
+   HOW TO USE:
+   1. Copy this file to src/themes/[sitename]/tokens.css
+   2. Fill in values below for the new brand
+   3. In BaseLayout.astro, change ONE line:
+      import '../themes/[sitename]/tokens.css';
+   4. Every component reskins automatically.
+   ═══════════════════════════════════════════════ */
+
+/* ── FONT
+   Replace URL with your Google Fonts link.
+   Update --font-heading / --font-body to match. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+
+  /* ── TYPOGRAPHY ── */
+  --font-heading: 'Inter', -apple-system, sans-serif;
+  --font-body:    'Inter', -apple-system, sans-serif;
+
+  /* ── BRAND COLORS ── */
+  --color-brand:      #000000;   /* primary — buttons, highlights */
+  --color-brand-dark: #000000;   /* hover state of brand color */
+  --color-accent:     #000000;   /* secondary — labels, links, strip */
+  --color-accent-bg:  #f0f0f0;   /* light tint of accent */
+
+  /* ── NEUTRALS ── */
+  --color-ink:     #111111;              /* headings */
+  --color-body:    rgba(17,17,17,0.75);  /* body text */
+  --color-surface: #f7f7f7;             /* section backgrounds */
+  --color-bg:      #ffffff;             /* page background */
+  --color-border:  #e5e5e5;            /* dividers */
+
+  /* ── SHAPE & SHADOW ── */
+  --radius:    7px;
+  --radius-lg: 14px;
+  --shadow:    0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+
+  /* ── SPACING ── */
+  --space-xs:  8px;
+  --space-sm:  16px;
+  --space-md:  24px;
+  --space-lg:  40px;
+  --space-xl:  64px;
+  --space-2xl: 96px;
+}

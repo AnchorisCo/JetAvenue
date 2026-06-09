@@ -1,0 +1,91 @@
+<!--
+  SNIPPET NAME: "header"  (a.k.a. site-header / nav)
+  ===================================================
+  What it is:
+    The sticky top header — logo row (hamburger, search, logo, account/cart
+    icons) plus a horizontal nav-links row, with a slide-out mobile menu +
+    overlay. Identical markup is reused across every page on the site; only
+    the active-page nav link styling differs (handled automatically by JS).
+
+  Used on:
+    - Every page (index.html, sports.html, contact.html, order.html, etc.)
+
+  Requires (already in shared style.css):
+    .site-header, .header-logo-row, .header-left, .header-logo-link,
+    .header-logo, .header-icons, .icon-btn, .header-nav,
+    .mobile-menu-overlay, .mobile-menu
+
+  Requires (JS — main.js already wires this up site-wide; if porting to a
+  new project, copy the hamburger/menu-toggle + scroll-shrink IIFEs from
+  main.js — search for "hamburger", "mobileMenu", "site-header"):
+    - Hamburger button toggles .mobile-menu + .mobile-menu-overlay open/closed
+    - Clicking a link or the overlay closes the menu
+    - Header may shrink/condense on scroll (search "site-header" in main.js
+      for the scroll-class toggle, if present on this build)
+
+  Placeholders to swap when reusing for a NEW CLIENT SITE:
+    - Logo: swap `assets/images/logos/netsnapz-logo.svg` + alt text for the
+      client's logo file in BOTH the desktop logo link and footer (footer.html)
+    - Nav links: relabel/re-target hrefs for the client's actual page structure
+      (keep both the desktop <nav class="header-nav"> AND the mobile
+      <div class="mobile-menu"> lists in sync — they should always match)
+    - Account/cart icons: remove if the client site has no e-commerce, or
+      repoint to their store/quote/contact flow
+    - "Order Now" CTA at the bottom of the mobile menu — relabel to match
+      the client's primary conversion action (e.g. "Get a Quote", "Book Now")
+-->
+
+<header class="site-header" id="site-header">
+
+  <!-- Logo row -->
+  <div class="header-logo-row container">
+    <div class="header-left">
+      <button class="hamburger" id="hamburger" aria-label="Menu">&#9776;</button>
+      <button class="icon-btn" aria-label="Search" id="searchBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+    </div>
+    <a href="index.html" class="header-logo-link">
+      <img src="assets/images/logos/REPLACE-WITH-CLIENT-LOGO.svg" alt="[Client Name]" class="header-logo" id="site-logo"/>
+    </a>
+    <div class="header-icons">
+      <button class="icon-btn mobile-search-btn" aria-label="Search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <!-- Remove account/cart icons entirely for non-ecommerce client sites -->
+      <a href="order.html" class="icon-btn" aria-label="Account">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </a>
+      <a href="order.html" class="icon-btn cart-btn" aria-label="Cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Nav links row — keep this list IN SYNC with the mobile menu below -->
+  <nav class="header-nav">
+    <a href="index.html">Home</a>
+    <a href="#REPLACE-anchor">Section Link</a>
+    <a href="REPLACE.html">Page Link</a>
+    <a href="#REPLACE-anchor">Section Link</a>
+    <a href="REPLACE.html">Page Link</a>
+    <a href="#faq">FAQ</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+
+  <!-- Mobile menu overlay -->
+  <div class="mobile-menu-overlay" id="menuOverlay"></div>
+
+  <!-- Mobile menu — duplicate of header-nav links + a primary CTA button -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html">Home</a>
+    <a href="#REPLACE-anchor">Section Link</a>
+    <a href="REPLACE.html">Page Link</a>
+    <a href="#REPLACE-anchor">Section Link</a>
+    <a href="REPLACE.html">Page Link</a>
+    <a href="#faq">FAQ</a>
+    <a href="contact.html">Contact</a>
+    <a href="REPLACE.html" class="btn btn-primary" style="text-align:center;">REPLACE CTA Label →</a>
+  </div>
+
+</header>

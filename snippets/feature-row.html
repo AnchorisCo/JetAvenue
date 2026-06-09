@@ -1,0 +1,114 @@
+<!--
+  SNIPPET: Feature row (image + copy section with parallax & scroll reveal)
+  ==========================================================================
+  What it is:
+    A two-column section — image on one side, headline/description/bullets/
+    CTA on the other — with:
+      • a fixed 4:3 image frame that gently parallax-drifts as you scroll
+        (pauses naturally when scrolling pauses, mirrors the scroll-story bg)
+      • scroll-triggered reveal animations (section slides up, image slides
+        in from alternating left/right depending on its position in the page)
+      • mobile-shortened copy via .text-long/.text-short toggle classes, so
+        the page reads cleanly on small screens while full SEO copy stays
+        for desktop/crawlers
+
+  Used on:
+    - sports.html (all 4 sport sections: pickleball, tennis, volleyball,
+      baseball/softball — this is the pickleball block, used as the template)
+
+  Requires (already in shared style.css — confirm the page links it):
+    .section, .feature-row, .feature-media, .feature-text
+    .slide-up, .slide-in-right, .slide-in-left   (reveal animation classes)
+    .text-long / .text-short / .long-only / .short-only (mobile copy toggle)
+    .hero-cta, .sponsor-benefits                 (button + bullet styling)
+
+  Requires (JS — these IIFEs should already be on sports.html; if adding
+  this snippet to a NEW page, copy both before </body>):
+
+    1. Reveal-animation observer — adds .slide-up to every .section and
+       alternates .slide-in-right/.slide-in-left on .feature-media by index
+       parity, then triggers .in-view via IntersectionObserver:
+
+       (function () {
+         var targets = [];
+         document.querySelectorAll('.section').forEach(function (el) {
+           el.classList.add('slide-up');
+           targets.push(el);
+         });
+         document.querySelectorAll('.feature-media').forEach(function (el, i) {
+           el.classList.add(i % 2 === 0 ? 'slide-in-right' : 'slide-in-left');
+           targets.push(el);
+         });
+         if (!targets.length) return;
+         var io = new IntersectionObserver(function (entries) {
+           entries.forEach(function (entry) {
+             if (entry.isIntersecting) {
+               entry.target.classList.add('in-view');
+               io.unobserve(entry.target);
+             }
+           });
+         }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
+         targets.forEach(function (el) { io.observe(el); });
+       })();
+
+    2. Parallax script — computes each .feature-media img's translateY based
+       on getBoundingClientRect() position relative to viewport, applied via
+       requestAnimationFrame on scroll/resize; respects prefers-reduced-motion.
+       (See sports.html's existing script block — copy it verbatim; it's
+       written generically to apply to ALL .feature-media elements on the page.)
+
+  Placeholders to swap when reusing:
+    - section id (used for in-page anchor links / nav)
+    - image src + alt text (write descriptive, keyword-relevant alt text)
+    - .section-label eyebrow text
+    - <h2 class="text-long"> / <h2 class="text-short"> — full vs. shortened headline
+    - <p class="text-long"> / <p class="text-short"> — full vs. shortened description
+    - .sponsor-benefits <li> pairs — each bullet needs BOTH a .long-only
+      (full detail, shown on desktop) and .short-only (condensed, shown on
+      mobile) version
+    - .hero-cta button hrefs/labels (guide link + "Order Now" with sport param)
+-->
+
+<section class="section" id="REPLACE-WITH-SECTION-ID">
+  <div class="container">
+    <div class="feature-row">
+      <div class="feature-media">
+        <img src="assets/images/REPLACE.jpg" alt="Descriptive, keyword-relevant alt text for this image" loading="lazy"/>
+      </div>
+      <div class="feature-text">
+        <div class="section-label">REPLACE WITH EYEBROW LABEL</div>
+
+        <h2 class="text-long">Full-Length Headline With SEO Keywords</h2>
+        <h2 class="text-short">Short Headline</h2>
+
+        <p class="text-long">
+          Full descriptive paragraph — this is what desktop visitors and
+          search crawlers see. Go into detail: what the product/service is,
+          who it's for, why it matters, and what makes NetSnapz different.
+          Aim for 3-5 sentences that read naturally and include relevant
+          keywords without keyword-stuffing.
+        </p>
+        <p class="text-short">
+          Condensed version of the same message — same core idea, fewer
+          words, optimized for mobile screens where vertical space is tight.
+        </p>
+
+        <ul class="sponsor-benefits">
+          <li class="long-only"><strong>Feature/benefit one</strong>, with the fuller explanatory detail that helps on desktop</li>
+          <li class="short-only"><strong>Feature/benefit one</strong>, condensed</li>
+          <li class="long-only"><strong>Feature/benefit two</strong>, with the fuller explanatory detail</li>
+          <li class="short-only"><strong>Feature/benefit two</strong>, condensed</li>
+          <li class="long-only"><strong>Feature/benefit three</strong>, with the fuller explanatory detail</li>
+          <li class="short-only"><strong>Feature/benefit three</strong>, condensed</li>
+          <li class="long-only"><strong>Feature/benefit four</strong>, with the fuller explanatory detail</li>
+          <li class="short-only"><strong>Feature/benefit four</strong>, condensed</li>
+        </ul>
+
+        <div class="hero-cta">
+          <a href="REPLACE-guide-link.html" class="btn btn-outline">See [Sport/Topic] Guide</a>
+          <a href="order.html?sport=REPLACE" class="btn btn-primary">Order Now →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

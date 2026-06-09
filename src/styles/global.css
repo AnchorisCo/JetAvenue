@@ -1,0 +1,39 @@
+/*
+  Global reset & base element styling — THEME-AGNOSTIC.
+  Everything here reads from custom properties defined in the active theme's
+  tokens.css (imported before this file in BaseLayout). Never hardcode a
+  brand color, font, or spacing value here — that's what tokens.css is for.
+  This file should look identical across every client site.
+*/
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-body);
+  background: var(--color-surface);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-ink);
+  margin: 0 0 var(--space-sm);
+  line-height: 1.15;
+}
+
+p { margin: 0 0 var(--space-sm); }
+
+a { color: inherit; }
+
+img, svg { display: block; max-width: 100%; }
+
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}

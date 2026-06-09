@@ -1,0 +1,207 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const services = [
+  {
+    id: 'line-maintenance',
+    title: 'Line & Schedule Maintenance',
+    panelColor: '#3A5A8C',
+    img: '/images/services/line-maintenance.jpg',
+    imgAlt: 'Private jet on the ramp during line maintenance',
+    bullets: [
+      'Quick response support: Schedule MX, RON checks, MEL clearing, systems troubleshooting',
+      'Engine Borescopes: Tay 611, BR 700, PW 800, 36-150 APUs',
+      'Certified for 91.411 & 91.413 checks; attaining NDT levels I, II & III',
+      'SDL Hangar Schedule & Line MX; VNY & LGB hangar access',
+      'Support under Part 65 privileges if fleet not in Ops Specs',
+      'Over 200 years combined maintenance experience',
+    ],
+  },
+  {
+    id: 'interior',
+    title: 'Mobile Interior Repair',
+    panelColor: '#8B6842',
+    img: '/images/services/interior-repair.jpg',
+    imgAlt: 'Technician repairing leather seating in private jet cabin',
+    bullets: [
+      'Leather repair & dye — seats, panels, curtains, headliners, dado panels, cockpit panels',
+      'Removals & installations of interiors or equipment components',
+      'Woodwork repair — scratches, chipping, scuffing, delamination, cracks up to 10"',
+      'Panel recovering & repair — headliners, PSUs, upper/lower panels, head bumpers',
+      'Carpet repairs, sewing, curtain repairs, mirror replacements',
+      'Lav sink plating touch up & polish; baggage panel repairs',
+    ],
+  },
+  {
+    id: 'avionics',
+    title: 'Avionics Support',
+    panelColor: '#2A3A52',
+    img: '/images/services/avionics.jpg',
+    imgAlt: 'Avionics panel in a private jet cockpit',
+    bullets: [
+      'Troubleshoot, diagnose & routine maintenance',
+      'Nav Aids',
+      'Pitot Static Systems & 91.411 / 91.413 checks',
+      'CMS Systems',
+      'QAR / FDR downloads',
+    ],
+  },
+  {
+    id: 'cleaning',
+    title: 'Cleaning',
+    panelColor: '#3A6155',
+    img: '/images/services/cleaning.jpg',
+    imgAlt: 'Private jet exterior being cleaned on the ramp',
+    bullets: [
+      'Interior & exterior cleaning, all levels',
+      'Leather conditioning',
+      'Carpet extraction',
+      'Coordinated with MX team post-maintenance events',
+    ],
+  },
+];
+---
+
+<BaseLayout title="Services — JetAvenue" description="JetAvenue offers line maintenance, mobile interior repair, avionics support, and cleaning for private jets nationwide.">
+
+  <div class="page-header">
+    <p class="eyebrow">WHAT WE DO</p>
+    <h1>Our Services</h1>
+    <p class="subhead">Professional, quality, reliable — we come to your aircraft, wherever it is.</p>
+  </div>
+
+  <div class="services-list">
+    {services.map((s, i) => (
+      <section class={`service-row ${i % 2 === 1 ? 'reverse' : ''}`} id={s.id}>
+        <div class="service-img-wrap" style={`--panel:${s.panelColor}`}>
+          <img src={s.img} alt={s.imgAlt} loading="lazy" />
+        </div>
+        <div class="service-content" style={`border-top: 4px solid ${s.panelColor}`}>
+          <h2>{s.title}</h2>
+          <ul>
+            {s.bullets.map(b => <li>{b}</li>)}
+          </ul>
+          <a href="/contact" class="service-cta" style={`background:${s.panelColor}`}>Get a Free Assessment</a>
+        </div>
+      </section>
+    ))}
+  </div>
+
+  <!-- Fleets strip -->
+  <section class="fleets-strip">
+    <p class="eyebrow">AIRCRAFT WE SERVICE</p>
+    <h2>Supported Fleets</h2>
+    <div class="fleet-grid">
+      <div class="fleet-item"><strong>Gulfstream</strong><span>GIV · G450 · GV · G550 · G650 · G500 · G600</span></div>
+      <div class="fleet-item"><strong>Bombardier</strong><span>Challenger 300/350/3500/604/605/650 · Global Express · XRS · 5000/6000/7500 · CRJ 800</span></div>
+      <div class="fleet-item"><strong>Dassault</strong><span>DA50 · 900 · 2000 · 2000 EX EASY · 7X</span></div>
+      <div class="fleet-item"><strong>Embraer</strong><span>ERJ135/145 · Legacy 600/650 · E-Jet 190</span></div>
+      <div class="fleet-item"><strong>Cessna</strong><span>560XL/XLS · CIT X · 680 · 680A</span></div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  .page-header {
+    background: var(--color-surface);
+    text-align: center;
+    padding: var(--space-xl) var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .eyebrow {
+    font-family: var(--font-heading); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.2em; color: var(--color-brand); text-transform: uppercase;
+    margin: 0 0 12px;
+  }
+  .page-header h1 {
+    font-family: var(--font-heading); font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800; color: var(--color-ink); margin: 0 0 14px; letter-spacing: -0.02em;
+  }
+  .subhead {
+    font-family: var(--font-body); font-size: 17px; color: var(--color-body);
+    max-width: 540px; margin: 0 auto; line-height: 1.6;
+  }
+
+  /* ── Service rows ── */
+  .services-list { display: flex; flex-direction: column; }
+
+  .service-row {
+    display: grid; grid-template-columns: 1fr;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .service-img-wrap {
+    aspect-ratio: 16/9; overflow: hidden; background: #ccc;
+    position: relative;
+  }
+  .service-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .service-content {
+    padding: var(--space-lg) var(--space-md);
+    display: flex; flex-direction: column; gap: var(--space-sm);
+    justify-content: center;
+  }
+  .service-content h2 {
+    font-family: var(--font-heading); font-size: 26px; font-weight: 800;
+    color: var(--color-ink); margin: 0; letter-spacing: -0.01em;
+  }
+  .service-content ul {
+    list-style: none; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .service-content li {
+    font-family: var(--font-body); font-size: 14px; color: var(--color-body);
+    line-height: 1.5; padding-left: 18px; position: relative;
+  }
+  .service-content li::before {
+    content: '▶'; position: absolute; left: 0;
+    color: var(--color-brand); font-size: 9px; top: 4px;
+  }
+  .service-cta {
+    display: inline-block; margin-top: 8px; padding: 12px 28px;
+    color: #fff; font-family: var(--font-heading); font-size: 13px;
+    font-weight: 700; letter-spacing: 0.05em; text-decoration: none;
+    border-radius: 3px; align-self: flex-start;
+    transition: opacity 0.18s;
+  }
+  .service-cta:hover { opacity: 0.85; }
+
+  @media (min-width: 900px) {
+    .service-row { grid-template-columns: 1fr 1fr; min-height: 420px; }
+    .service-row.reverse .service-img-wrap { order: 2; }
+    .service-row.reverse .service-content  { order: 1; }
+    .service-img-wrap { aspect-ratio: unset; }
+    .service-content { padding: var(--space-xl) var(--space-xl); }
+    .service-content h2 { font-size: 32px; }
+    .service-content li { font-size: 15px; }
+  }
+
+  /* ── Fleets strip ── */
+  .fleets-strip {
+    background: var(--color-surface);
+    padding: var(--space-xl) var(--space-md);
+    text-align: center;
+  }
+  .fleets-strip h2 {
+    font-family: var(--font-heading); font-size: clamp(24px, 3vw, 36px);
+    font-weight: 800; color: var(--color-ink); margin: 0 0 var(--space-lg);
+    letter-spacing: -0.02em;
+  }
+  .fleet-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-md); max-width: 1000px; margin: 0 auto; text-align: left;
+  }
+  .fleet-item {
+    background: #fff; border-radius: 3px; padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .fleet-item strong {
+    font-family: var(--font-heading); font-size: 15px; font-weight: 700;
+    color: var(--color-ink);
+  }
+  .fleet-item span {
+    font-family: var(--font-body); font-size: 13px; color: var(--color-body);
+    line-height: 1.5;
+  }
+</style>

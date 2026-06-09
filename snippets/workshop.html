@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NetSnapz — Snippet Workshop</title>
+<meta name="robots" content="noindex, nofollow"/>
+<link rel="stylesheet" href="../style.css"/>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: #f4f4f6; display: flex; }
+
+  /* ── Finder-style sidebar — same pattern as index.html's browser ── */
+  .workshop-sidebar {
+    flex: none; width: 232px; height: 100%; overflow-y: auto;
+    background: #fafafa; border-right: 1px solid #e5e5e5; padding: 18px 0 24px;
+  }
+  .sidebar-title {
+    padding: 0 20px 12px;
+    font: 11px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #999;
+  }
+  .sidebar-item {
+    display: flex; flex-direction: column; gap: 3px; width: 100%; text-align: left;
+    padding: 9px 20px; border: 0; background: transparent; color: #333; cursor: pointer;
+    border-left: 3px solid transparent; transition: background 0.12s ease, border-color 0.12s ease;
+  }
+  .sidebar-item:hover { background: #f0f0f0; }
+  .sidebar-item.is-active { background: #fff; border-left-color: #1c1c1e; }
+  .sidebar-item .item-name {
+    font: 700 14px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: -0.01em;
+  }
+  .sidebar-item .item-file {
+    font: 11px/1.3 ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: #999;
+  }
+
+  /* ── Main workshop column ── */
+  .workshop-main { flex: 1 1 auto; min-width: 0; height: 100%; overflow-y: auto; display: flex; flex-direction: column; }
+  /* #workshopBody is where each snippet's content gets rebuilt — it must be
+     part of the flex-stretch chain too, otherwise .device-row's "fill the
+     remaining space" has nothing definite to stretch into and collapses to
+     its content's minimum height (the squashed-pane bug). */
+  #workshopBody { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+
+  .preview-bar {
+    position: sticky; top: 0; z-index: 50; flex: none;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 14px 24px; background: #1c1c1e; color: #fff;
+    font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .preview-bar-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; }
+  .preview-bar-title { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+  .preview-bar-title .name { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+  .preview-bar-title .desc { color: #aaa; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .copy-btn {
+    flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px;
+    background: #2c2c2e; color: #fff; border: 1px solid #3a3a3c;
+    border-radius: 7px; padding: 8px 14px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .copy-btn:hover { background: #3a3a3c; }
+  .copy-btn:active { transform: scale(0.97); }
+  .copy-btn svg { width: 15px; height: 15px; flex: none; }
+  .copy-btn.copied { background: #1f7a3d; border-color: #1f7a3d; }
+
+  /* ── Device comparison panes ── */
+  .device-row {
+    flex: 1 1 auto; min-height: 0;
+    margin: 0 auto; padding: 22px 24px 28px; width: 100%;
+    display: flex; gap: 28px; flex-wrap: wrap; justify-content: center;
+  }
+  .device-pane {
+    display: flex; flex-direction: column;
+    background: #fff; border-radius: 18px; overflow: hidden;
+    box-shadow: 0 18px 46px -14px rgba(0,0,0,0.28), 0 4px 14px rgba(0,0,0,0.07);
+  }
+  .device-pane.is-desktop { flex: 75 1 480px; min-width: 420px; }
+  .device-pane.is-mobile  { flex: 25 1 300px; min-width: 280px; }
+  .device-pane-head { padding: 22px 16px 6px; font: 13px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  .slider-wrap { position: relative; padding-top: 22px; }
+  .slider-label {
+    position: absolute; top: 0; transform: translateX(-50%);
+    font-size: 11px; font-weight: 700; color: #fff; background: #1c1c1e;
+    padding: 3px 8px; border-radius: 5px; white-space: nowrap; pointer-events: none;
+  }
+  .slider-label::after {
+    content: ""; position: absolute; left: 50%; bottom: -4px; transform: translateX(-50%);
+    border: 4px solid transparent; border-top-color: #1c1c1e;
+  }
+  input[type="range"] {
+    width: 100%; -webkit-appearance: none; appearance: none;
+    height: 4px; border-radius: 2px; background: #ddd; outline: none; display: block;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; border: 2px solid #1c1c1e; cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; border: 2px solid #1c1c1e; cursor: pointer;
+  }
+  .device-pane-body {
+    flex: 1 1 auto; min-height: 0; overflow: hidden;
+    background: repeating-linear-gradient(45deg, #ececef 0 12px, #e5e5e9 12px 24px);
+    display: flex; justify-content: center; align-items: stretch; padding: 22px;
+  }
+  .device-pane-body iframe {
+    flex: none; max-width: 100%; height: 100%;
+    border: 0; border-radius: 10px; display: block; background: #fff;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+  }
+
+  /* ── Live CSS editor (per pane) ── */
+  .css-editor-wrap { flex: none; border-top: 1px solid #ececec; background: #fafafa; display: flex; flex-direction: column; }
+  .css-editor-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 14px; font: 11px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #888; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
+  }
+  .css-editor-bar .copy-css-btn {
+    flex: none; border: 1px solid #ddd; background: transparent; color: #888;
+    font: 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: 0.04em; text-transform: none; font-weight: 600;
+    cursor: pointer; padding: 3px 8px; border-radius: 5px;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .css-editor-bar .copy-css-btn:hover { background: #ececec; color: #333; }
+  .css-editor-bar .copy-css-btn.copied { background: #1f7a3d; color: #fff; border-color: #1f7a3d; }
+  .css-editor-shell { position: relative; flex: none; height: 476px; border-top: 1px solid #ececec; }
+  /* Line-number gutter — purely visual reference for locating the same rule
+     in styles.css; numbers are generated from the textarea's own line count
+     (1-based) and its scroll is kept in lockstep with the editor/highlight. */
+  .css-gutter {
+    position: absolute; inset: 0 auto 0 0; width: 38px; margin: 0; padding: 10px 0;
+    box-sizing: border-box; overflow: hidden; text-align: right;
+    font: 14px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    color: #5a5a5e; background: #1c1c1e; border-right: 1px solid #2e2e31;
+    user-select: none; pointer-events: none; z-index: 0;
+  }
+  .css-gutter div { padding: 0 8px 0 0; }
+  .css-highlight, .css-editor {
+    position: absolute; top: 0; right: 0; bottom: 0; left: 38px; margin: 0; padding: 10px 14px;
+    box-sizing: border-box; overflow: auto; white-space: pre-wrap; word-wrap: break-word;
+    font: 14px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace; tab-size: 2;
+  }
+  .css-highlight { color: #d4d4d8; background: #1c1c1e; pointer-events: none; z-index: 0; }
+  .css-highlight code { font: inherit; }
+  .css-editor { z-index: 1; border: 0; outline: none; resize: none; background: transparent; color: transparent; caret-color: #fff; }
+  .css-editor::placeholder { color: #6b6b6e; }
+  .tok-selector  { color: #c5a3ff; }
+  .tok-at        { color: #c792ea; font-weight: 600; }
+  .tok-cond      { color: #89ddff; }
+  .tok-prop      { color: #80cbc4; }
+  .tok-value     { color: #f78c6c; }
+  .tok-important { color: #ff5370; font-weight: 700; }
+  .tok-punct     { color: #6b6b6e; }
+  .tok-comment   { color: #6b6b6e; font-style: italic; }
+  .tok-srcline   { color: #9be29b; font-style: italic; }
+
+  /* ── Fallback message for snippets without an isolated live preview ── */
+  .no-preview {
+    flex: 1 1 auto; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 40px;
+  }
+  .no-preview-card {
+    max-width: 440px; background: #fff; border-radius: 16px; padding: 28px 32px;
+    box-shadow: 0 18px 46px -14px rgba(0,0,0,0.18);
+    font: 14px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #555;
+  }
+  .no-preview-card h2 { margin: 0 0 10px; font-size: 17px; color: #222; }
+  .no-preview-card a { color: #2563eb; font-weight: 600; text-decoration: none; }
+  .no-preview-card a:hover { text-decoration: underline; }
+
+  @media (max-width: 880px) {
+    .device-row { flex: none; }
+    .device-pane-body { min-height: 380px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ══════════ Sidebar — click a snippet to load it on the right ══════════ -->
+  <nav class="workshop-sidebar" aria-label="Snippet workshop browser">
+    <div class="sidebar-title">Snippets</div>
+    <button class="sidebar-item" data-snippet="service-slider" type="button">
+      <span class="item-name">Service Slider</span>
+      <span class="item-file">service-slider.html</span>
+    </button>
+    <button class="sidebar-item" data-snippet="hero-cone" type="button">
+      <span class="item-name">hero-cone</span>
+      <span class="item-file">hero-cone.html</span>
+    </button>
+    <button class="sidebar-item" data-snippet="feature-row" type="button">
+      <span class="item-name">feature-row</span>
+      <span class="item-file">feature-row.html</span>
+    </button>
+    <button class="sidebar-item" data-snippet="story-canvas" type="button">
+      <span class="item-name">story-canvas</span>
+      <span class="item-file">story-canvas.html</span>
+    </button>
+    <button class="sidebar-item" data-snippet="slider" type="button">
+      <span class="item-name">slider</span>
+      <span class="item-file">slider.html</span>
+    </button>
+    <button class="sidebar-item" data-snippet="header" type="button">
+      <span class="item-name">header</span>
+      <span class="item-file">header.html</span>
+    </button>
+    <button class="sidebar-item" data-snippet="footer" type="button">
+      <span class="item-name">footer</span>
+      <span class="item-file">footer.html</span>
+    </button>
+  </nav>
+
+  <!-- ══════════ Main: bar + dual-pane device editor (rebuilt per snippet) ══════════ -->
+  <main class="workshop-main">
+    <div class="preview-bar">
+      <div class="preview-bar-title">
+        <span class="name" id="barName">hero-cone</span>
+        <span class="desc" id="barDesc">Hero with the "cone drop" entrance animation</span>
+      </div>
+      <div class="preview-bar-actions">
+        <button class="copy-btn" id="refreshBtn" type="button" title="Reload this snippet's preview (resets live CSS edits)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          <span class="label">Refresh</span>
+        </button>
+        <button class="copy-btn" id="copyBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span class="label">Copy code</span>
+        </button>
+      </div>
+    </div>
+    <div id="workshopBody"></div>
+  </main>
+
+  <!-- ============ SNIPPET SOURCES — registry of what the workshop can load ============ -->
+  <template id="tmpl-hero-cone">
+    <section class="hero">
+      <div class="container hero-inner hero-cone">
+        <div class="hero-text">
+          <p class="section-label">YOUR EYEBROW / LABEL HERE</p>
+          <h1>Your Headline Goes<br><span class="accent">Right Here</span></h1>
+          <div class="hero-media-mobile">
+            <img src="../assets/images/slider/netsnapz-snap-on-net-banner-installation-ari-heat-volleyball.jpg"
+                 alt="Preview placeholder image — replace with the page's mobile hero photo" loading="lazy"/>
+          </div>
+          <p class="hero-sub">One or two sentences of supporting copy that explains the value proposition for this page/section.</p>
+          <div class="hero-cta">
+            <a href="#" class="btn btn-primary btn-large">Order Now →</a>
+            <a href="#" class="btn btn-ghost">▶ See How It Works</a>
+          </div>
+          <div class="hero-trust">
+            <span>✓ Trust point one</span>
+            <span>✓ Trust point two</span>
+          </div>
+        </div>
+        <div class="hero-image">
+          <div class="hero-video-wrap">
+            <img src="../assets/images/slider/netsnapz-snap-on-net-banner-installation-ari-heat-volleyball.jpg"
+                 alt="Preview placeholder image — replace with the page's hero video or photo" loading="lazy"
+                 style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;"/>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tmpl-feature-row">
+    <section class="section">
+      <div class="container">
+        <div class="feature-row">
+          <div class="feature-media">
+            <img src="../assets/images/kenburns/netsnapz-snap-on-net-sign-become-a-sponsor-pickleball-courtside.jpg"
+                 alt="Preview placeholder image — replace with section's real photo + descriptive alt text" loading="lazy"/>
+          </div>
+          <div class="feature-text">
+            <div class="section-label">REPLACE WITH EYEBROW LABEL</div>
+            <h2 class="text-long">Full-Length Headline With SEO Keywords</h2>
+            <h2 class="text-short">Short Headline</h2>
+            <p class="text-long">
+              Full descriptive paragraph — this is what desktop visitors and
+              search crawlers see. Go into detail: what the product/service is,
+              who it's for, why it matters, and what makes NetSnapz different.
+            </p>
+            <p class="text-short">
+              Condensed version of the same message — same core idea, fewer
+              words, optimized for mobile screens.
+            </p>
+            <ul class="sponsor-benefits">
+              <li class="long-only"><strong>Feature/benefit one</strong>, with the fuller explanatory detail that helps on desktop</li>
+              <li class="short-only"><strong>Feature/benefit one</strong>, condensed</li>
+              <li class="long-only"><strong>Feature/benefit two</strong>, with the fuller explanatory detail</li>
+              <li class="short-only"><strong>Feature/benefit two</strong>, condensed</li>
+            </ul>
+            <div class="hero-cta">
+              <a href="#" class="btn btn-outline">See [Sport/Topic] Guide</a>
+              <a href="#" class="btn btn-primary">Order Now →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Variation: image on the right — add .is-reversed to .feature-row.
+         Markup order is unchanged (media first), so mobile still stacks
+         "image above copy"; row-reverse only flips the desktop layout. -->
+    <section class="section">
+      <div class="container">
+        <div class="feature-row is-reversed">
+          <div class="feature-media">
+            <img src="../assets/images/kenburns/netsnapz-snap-on-net-sign-become-a-sponsor-pickleball-courtside.jpg"
+                 alt="Preview placeholder image — replace with section's real photo + descriptive alt text" loading="lazy"/>
+          </div>
+          <div class="feature-text">
+            <div class="section-label">REPLACE WITH EYEBROW LABEL</div>
+            <h2 class="text-long">Full-Length Headline With SEO Keywords</h2>
+            <h2 class="text-short">Short Headline</h2>
+            <p class="text-long">
+              Full descriptive paragraph — this is what desktop visitors and
+              search crawlers see. Go into detail: what the product/service is,
+              who it's for, why it matters, and what makes NetSnapz different.
+            </p>
+            <p class="text-short">
+              Condensed version of the same message — same core idea, fewer
+              words, optimized for mobile screens.
+            </p>
+            <ul class="sponsor-benefits">
+              <li class="long-only"><strong>Feature/benefit one</strong>, with the fuller explanatory detail that helps on desktop</li>
+              <li class="short-only"><strong>Feature/benefit one</strong>, condensed</li>
+              <li class="long-only"><strong>Feature/benefit two</strong>, with the fuller explanatory detail</li>
+              <li class="short-only"><strong>Feature/benefit two</strong>, condensed</li>
+            </ul>
+            <div class="hero-cta">
+              <a href="#" class="btn btn-outline">See [Sport/Topic] Guide</a>
+              <a href="#" class="btn btn-primary">Order Now →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </template>
+
+  <template id="tmpl-story-canvas">
+    <div class="scroll-story" id="scrollStory">
+      <div class="scroll-story-sticky">
+
+        <div class="scroll-bg" id="scrollBg" role="img" aria-label="Textured background scene"
+             style="background-image: url('../assets/images/backgrounds/background-gray.jpg');"></div>
+        <div class="scroll-overlay"></div>
+
+        <div class="scroll-progress-bar"><div class="scroll-progress-fill" id="scrollProgressFill"></div></div>
+
+        <div class="scroll-cards" id="scrollCards">
+          <div class="scroll-card" data-index="0">
+            <div class="scroll-card-inner">
+              <div class="scroll-card-tag">[Short Eyebrow Tag]</div>
+              <h2>[Hook headline — the "wait, what?" moment]</h2>
+              <p>[1-2 sentences expanding on the hook — the problem you solve or the differentiator you lead with.]</p>
+            </div>
+            <div class="scroll-card-image">
+              <div class="scroll-card-img-placeholder"><img src="../assets/images/slider/netsnapz-snap-on-net-banner-installation-ari-heat-volleyball.jpg" alt="Preview placeholder — replace with real story-card photo" loading="lazy"/></div>
+            </div>
+          </div>
+          <div class="scroll-card" data-index="1">
+            <div class="scroll-card-inner">
+              <div class="scroll-card-tag">[Short Eyebrow Tag]</div>
+              <h2>[Headline — build out the story / show range or versatility]</h2>
+              <p>[Supporting copy.]</p>
+            </div>
+            <div class="scroll-card-image">
+              <div class="scroll-card-img-placeholder"><img src="../assets/images/slider/netsnapz-snap-on-net-boards-baseball-field-number-tournament.jpg" alt="Preview placeholder — replace with real story-card photo" loading="lazy"/></div>
+            </div>
+          </div>
+          <div class="scroll-card" data-index="2">
+            <div class="scroll-card-inner">
+              <div class="scroll-card-tag">[Short Eyebrow Tag]</div>
+              <h2>[Headline — proof point, use case, or audience-specific angle]</h2>
+              <p>[Supporting copy.]</p>
+            </div>
+            <div class="scroll-card-image">
+              <div class="scroll-card-img-placeholder"><img src="../assets/images/slider/netsnapz-snap-on-net-displays-multi-sponsor-volleyball-tournament.jpg" alt="Preview placeholder — replace with real story-card photo" loading="lazy"/></div>
+            </div>
+          </div>
+          <div class="scroll-card" data-index="3">
+            <div class="scroll-card-inner">
+              <div class="scroll-card-tag">[Short Eyebrow Tag]</div>
+              <h2>[Headline — quality / craftsmanship / what sets you apart]</h2>
+              <p>[Supporting copy.]</p>
+            </div>
+            <div class="scroll-card-image">
+              <div class="scroll-card-img-placeholder"><img src="../assets/images/slider/netsnapz-snap-on-net-panels-summit-league-tennis-championships.jpg" alt="Preview placeholder — replace with real story-card photo" loading="lazy"/></div>
+            </div>
+          </div>
+          <div class="scroll-card" data-index="4">
+            <div class="scroll-card-inner">
+              <div class="scroll-card-tag">[Ready to...? / Get Started]</div>
+              <h2>[Closing headline — the "now act" moment]</h2>
+              <p>[Reassurance copy — turnaround time, guarantee, what happens next.]</p>
+              <a href="#" class="btn btn-primary btn-large" style="margin-top:8px;">[Primary CTA Label →]</a>
+            </div>
+            <div class="scroll-card-image">
+              <div class="scroll-card-img-placeholder"><img src="../assets/images/kenburns/netsnapz-snap-on-net-sign-become-a-sponsor-pickleball-courtside.jpg" alt="Preview placeholder — replace with real story-card photo" loading="lazy"/></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="scroll-counter">
+          <span id="scrollCountCurrent">1</span> / <span id="scrollCountTotal">5</span>
+        </div>
+
+      </div>
+    </div>
+  </template>
+
+  <template id="tmpl-slider">
+    <section class="slider-section">
+      <div class="slider-viewport">
+        <div class="slider-track" id="sliderTrack">
+          <div class="slide"><img src="../assets/images/slider/netsnapz-snap-on-net-banner-fasteners-hawaii-convention-center.jpg" alt="[Descriptive, keyword-relevant alt text — also used as the lightbox caption]" loading="lazy"/></div>
+          <div class="slide"><img src="../assets/images/slider/netsnapz-snap-on-net-signs-court-id-numbers-hawaii-convention-center.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+          <div class="slide"><img src="../assets/images/slider/netsnapz-snap-on-net-banner-installation-ari-heat-volleyball.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+          <div class="slide"><img src="../assets/images/slider/netsnapz-snap-on-net-panels-summit-league-tennis-championships.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+          <div class="slide"><img src="../assets/images/slider/netsnapz-snap-on-net-sign-heavenly-paws-cremations-pickleball.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+          <div class="slide"><img src="../assets/images/slider/netsnapz-snap-on-net-displays-multi-sponsor-volleyball-tournament.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+          <div class="slide"><img src="../assets/images/slider/netsnapz-snap-on-net-signs-mercyone-genesis-black-vinyl.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+          <div class="slide"><img src="../assets/images/slider/netsnapz-snap-on-net-boards-baseball-field-number-tournament.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+        </div>
+      </div><!-- /slider-viewport -->
+      <button class="slider-btn slider-prev" id="sliderPrev" aria-label="Previous">&#8592;</button>
+      <button class="slider-btn slider-next" id="sliderNext" aria-label="Next">&#8594;</button>
+      <div class="slider-dots" id="sliderDots"></div>
+    </section>
+
+    <!-- Companion lightbox — the slider's click handler opens this -->
+    <div class="gallery-lightbox" id="galleryLightbox">
+      <button class="gallery-nav gallery-prev" id="galleryPrev" aria-label="Previous image">&#8592;</button>
+      <button class="gallery-nav gallery-next" id="galleryNext" aria-label="Next image">&#8594;</button>
+      <div class="gallery-stage">
+        <button class="gallery-close" id="galleryClose" aria-label="Close gallery">&times;</button>
+        <img class="gallery-image" id="galleryImage" src="" alt=""/>
+        <div class="gallery-caption" id="galleryCaption"></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="tmpl-header">
+    <header class="site-header" id="site-header">
+
+      <!-- Logo row -->
+      <div class="header-logo-row container">
+        <div class="header-left">
+          <button class="hamburger" id="hamburger" aria-label="Menu">&#9776;</button>
+          <button class="icon-btn" aria-label="Search" id="searchBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+        </div>
+        <a href="index.html" class="header-logo-link">
+          <img src="../assets/images/logos/netsnapz-logo.svg" alt="NetSnapz" class="header-logo" id="site-logo"/>
+        </a>
+        <div class="header-icons">
+          <button class="icon-btn mobile-search-btn" aria-label="Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+          <a href="order.html" class="icon-btn" aria-label="Account">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </a>
+          <a href="order.html" class="icon-btn cart-btn" aria-label="Cart">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Nav links row -->
+      <nav class="header-nav">
+        <a href="index.html">Home</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="sports.html">Sports</a>
+        <a href="#sponsors">For Sponsors</a>
+        <a href="order.html">Order</a>
+        <a href="#faq">FAQ</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+
+      <!-- Mobile menu overlay -->
+      <div class="mobile-menu-overlay" id="menuOverlay"></div>
+
+      <!-- Mobile menu -->
+      <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">&times;</button>
+        <a href="index.html">Home</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="sports.html">Sports</a>
+        <a href="#sponsors">For Sponsors</a>
+        <a href="order.html">Order</a>
+        <a href="#faq">FAQ</a>
+        <a href="contact.html">Contact</a>
+        <a href="order.html" class="btn btn-primary" style="text-align:center;">Order Now →</a>
+      </div>
+
+    </header>
+
+    <!-- A slice of page content below so the sticky header has something to
+         sit on top of and the pane doesn't look like a floating bar. -->
+    <div class="container" style="padding:48px 0; color:#999; font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+      ↓ Try the hamburger (mobile width) and the nav links above — this stand-in
+      block is just here so the sticky header has page content to sit on.
+      <div style="height:60vh;"></div>
+    </div>
+  </template>
+
+  <template id="tmpl-footer">
+    <!-- A slice of page content above so the footer doesn't look like it's
+         floating with nothing for it to "close out". -->
+    <div class="container" style="padding:48px 0; color:#999; font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+      ↑ Stand-in page content — the footer below is what this snippet previews
+      (subscribe form, social links, payment icons, legal line).
+    </div>
+
+    <footer class="footer">
+      <div class="container footer-inner">
+
+        <!-- Logo + tagline -->
+        <div class="footer-brand">
+          <img src="../assets/images/logos/netsnapz-logo.svg" alt="NetSnapz — snap-on net banners" class="logo-footer"/>
+          <p class="footer-tagline">The Original Snap-On Net Banners for Every Sport</p>
+        </div>
+
+        <!-- Policy links -->
+        <nav class="footer-links">
+          <a href="privacy-policy.html">Privacy</a>
+          <a href="return-policy.html">Returns</a>
+          <a href="shipping-policy.html">Shipping</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+
+        <!-- Subscribe + Social row -->
+        <div class="footer-mid-row">
+          <div class="footer-subscribe">
+            <p class="footer-subscribe-label">Subscribe to our emails</p>
+            <form class="footer-email-form" id="footerSubscribeForm">
+              <input type="email" placeholder="Email" class="footer-email-input"/>
+              <button type="submit" class="footer-email-btn" aria-label="Subscribe">&#8594;</button>
+            </form>
+          </div>
+          <div class="footer-social">
+            <a href="https://facebook.com/netsnapz" target="_blank" aria-label="Facebook">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a href="https://instagram.com/netsnapz" target="_blank" aria-label="Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+            </a>
+            <a href="https://pinterest.com/netsnapz" target="_blank" aria-label="Pinterest">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Payment icons -->
+        <div class="footer-payments">
+          <svg class="payment-icon" viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="American Express"><rect width="38" height="24" rx="4" fill="#2E77BC"/><text x="19" y="16" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="white" letter-spacing="0.5">AMEX</text></svg>
+          <svg class="payment-icon" viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Apple Pay"><rect width="38" height="24" rx="4" fill="#000"/><text x="19" y="15.5" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-size="7.5" font-weight="500" fill="white"> Pay</text><path d="M10.8 8.4c.5-.6.8-1.4.7-2.2-.7.1-1.6.5-2.1 1.1-.5.5-.8 1.3-.7 2.1.8.1 1.6-.4 2.1-1z" fill="white"/><path d="M11.5 9.5c-1.2-.1-2.2.7-2.7.7-.6 0-1.4-.7-2.3-.6-1.2.1-2.3.7-2.9 1.7-1.2 2.1-.3 5.2.9 6.9.6.9 1.3 1.8 2.2 1.8.9 0 1.2-.6 2.3-.6 1.1 0 1.4.6 2.3.5.9 0 1.5-.8 2.1-1.7.7-.9.9-1.8 1-1.8-.1 0-1.8-.7-1.9-2.8 0-1.8 1.4-2.6 1.5-2.7-.9-1.3-2.2-1.4-2.5-1.4z" fill="white" transform="scale(0.55) translate(3,2)"/></svg>
+          <svg class="payment-icon" viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diners Club"><rect width="38" height="24" rx="4" fill="white" stroke="#e0e0e0" stroke-width="1"/><circle cx="15" cy="12" r="6" fill="none" stroke="#004A97" stroke-width="1.5"/><circle cx="23" cy="12" r="6" fill="none" stroke="#004A97" stroke-width="1.5"/></svg>
+          <svg class="payment-icon" viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Discover"><rect width="38" height="24" rx="4" fill="white" stroke="#e0e0e0" stroke-width="1"/><circle cx="27" cy="12" r="7" fill="#F76F20"/><text x="5" y="15.5" font-family="Arial,sans-serif" font-size="6" font-weight="700" fill="#231F20" letter-spacing="0.2">discover</text></svg>
+          <svg class="payment-icon" viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Google Pay"><rect width="38" height="24" rx="4" fill="white" stroke="#e0e0e0" stroke-width="1"/><text x="7" y="15.5" font-family="Arial,sans-serif" font-size="8" font-weight="500" fill="#5F6368">G</text><text x="14" y="15.5" font-family="Arial,sans-serif" font-size="8" font-weight="500" fill="#5F6368">Pay</text><text x="7" y="15.5" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="#4285F4">G</text></svg>
+          <svg class="payment-icon" viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mastercard"><rect width="38" height="24" rx="4" fill="white" stroke="#e0e0e0" stroke-width="1"/><circle cx="15" cy="12" r="7" fill="#EB001B"/><circle cx="23" cy="12" r="7" fill="#F79E1B"/><path d="M19 6.8a7 7 0 0 1 0 10.4A7 7 0 0 1 19 6.8z" fill="#FF5F00"/></svg>
+          <svg class="payment-icon" viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Shop Pay"><rect width="38" height="24" rx="4" fill="#5A31F4"/><text x="19" y="15.5" text-anchor="middle" font-family="Arial,sans-serif" font-size="6.5" font-weight="700" fill="white" letter-spacing="0.3">Shop Pay</text></svg>
+          <svg class="payment-icon" viewBox="0 0 38 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Visa"><rect width="38" height="24" rx="4" fill="white" stroke="#e0e0e0" stroke-width="1"/><text x="19" y="16" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#1A1F71" letter-spacing="1" font-style="italic">VISA</text></svg>
+        </div>
+
+        <!-- Copyright -->
+        <div class="footer-legal">
+          &copy; 2026 NetSnapz.com. All rights reserved.<br>
+          1702 Willow Creek Rd Ste A, Prescott, CA 86301
+        </div>
+
+      </div>
+    </footer>
+  </template>
+
+  <script>
+    (function () {
+      // ---- Registry: what the sidebar can load -------------------------
+      var REGISTRY = {
+        'hero-cone': {
+          name: 'hero-cone', file: 'hero-cone.html',
+          desc: 'Hero with the "cone drop" entrance animation',
+          template: 'tmpl-hero-cone',
+          play: function (doc, win) {
+            var hero = doc.querySelector('.hero');
+            if (!hero) return;
+            win.requestAnimationFrame(function () {
+              win.requestAnimationFrame(function () { hero.classList.add('hero-play'); });
+            });
+          }
+        },
+        'feature-row': {
+          name: 'feature-row', file: 'feature-row.html',
+          desc: 'Image + copy section · parallax · scroll reveal · mobile text-shortening',
+          template: 'tmpl-feature-row',
+          play: function (doc, win) {
+            var section = doc.querySelector('.section');
+            if (!section) return;
+
+            // Verbatim port of the reveal-observer + parallax pair documented
+            // in feature-row.preview.html (the snippet's own "copy these two
+            // scripts alongside it" reference) — just re-targeted at this
+            // iframe's `doc`/`win` instead of the global document/window, so
+            // the exact same scroll-driven behavior plays inside the pane.
+            // It needs scroll room to trigger, so add a spacer above/below.
+            var spacerTop = doc.createElement('div');
+            spacerTop.textContent = '↓ scroll to trigger the reveal + parallax ↓';
+            spacerTop.style.cssText =
+              'height:70vh; display:flex; align-items:center; justify-content:center;' +
+              'color:#aaa; font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;';
+            section.parentNode.insertBefore(spacerTop, section);
+
+            var spacerBottom = doc.createElement('div');
+            spacerBottom.style.height = '60vh';
+            section.parentNode.appendChild(spacerBottom);
+
+            // ---- Reveal observer (verbatim from feature-row.preview.html) ----
+            var targets = [];
+            doc.querySelectorAll('.section').forEach(function (el) {
+              el.classList.add('slide-up');
+              targets.push(el);
+            });
+            doc.querySelectorAll('.feature-media').forEach(function (el, i) {
+              el.classList.add(i % 2 === 0 ? 'slide-in-right' : 'slide-in-left');
+              targets.push(el);
+            });
+            if (targets.length) {
+              var io = new win.IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                  if (entry.isIntersecting) {
+                    entry.target.classList.add('in-view');
+                    io.unobserve(entry.target);
+                  }
+                });
+              }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
+              targets.forEach(function (el) { io.observe(el); });
+            }
+
+            // ---- Parallax drift (verbatim from feature-row.preview.html) ----
+            var medias = Array.prototype.slice.call(doc.querySelectorAll('.feature-media'));
+            if (medias.length) {
+              var imgs = medias.map(function (el) { return el.querySelector('img'); });
+              function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+              var ticking = false;
+              function update() {
+                var winH = win.innerHeight;
+                medias.forEach(function (el, i) {
+                  var img = imgs[i];
+                  if (!img) return;
+                  var rect = el.getBoundingClientRect();
+                  var p = clamp((winH - rect.top) / (winH + rect.height), 0, 1);
+                  var maxShiftPct = rect.height < 340 ? 22 : 16;
+                  var shift = -(maxShiftPct * p);
+                  img.style.transform = 'translateY(' + shift.toFixed(2) + '%)';
+                });
+                ticking = false;
+              }
+              function onScroll() {
+                if (!ticking) { ticking = true; win.requestAnimationFrame(update); }
+              }
+              update();
+              win.addEventListener('scroll', onScroll, { passive: true });
+              win.addEventListener('resize', onScroll);
+            }
+          }
+        },
+        'story-canvas': {
+          name: 'story-canvas', file: 'story-canvas.html',
+          desc: 'Full-bleed sticky scroll-card stack — scroll-driven narrative + progress bar/counter',
+          template: 'tmpl-story-canvas',
+          play: function (doc, win) {
+            // Verbatim port of the ~150-line scroll-math engine documented in
+            // story-canvas.html (search main.js for `getElementById('scrollStory')`,
+            // ~lines 480-643) — retargeted from `document`/`window` to this
+            // iframe's `doc`/`win` so the exact same pinned-scroll card-stack
+            // sequencing plays inside the pane. `.scroll-story` is natively
+            // 775vh tall (see style.css), so no extra scroll-room spacers
+            // are needed — just scroll the pane itself.
+            var story    = doc.getElementById('scrollStory');
+            var bg       = doc.getElementById('scrollBg');
+            var cards    = Array.prototype.slice.call(doc.querySelectorAll('.scroll-card'));
+            var fill     = doc.getElementById('scrollProgressFill');
+            var countCur = doc.getElementById('scrollCountCurrent');
+            var countTot = doc.getElementById('scrollCountTotal');
+            if (!story || !cards.length) return;
+
+            // The engine deliberately keeps the LAST card on screen forever
+            // (`exitFrac` returns 0 for `i === N-1`) — on the live page the
+            // section simply hands off to whatever comes next. There's
+            // nothing after `.scroll-story` in this isolated preview, so add
+            // a spacer to scroll into — that's what lets you keep scrolling
+            // past the pinned section and watch the hand-off/release timing
+            // (the sticky card stack un-pins and scrolls away normally).
+            var spacerBottom = doc.createElement('div');
+            spacerBottom.textContent = '↓ section released — this is the hand-off to whatever comes next ↓';
+            spacerBottom.style.cssText =
+              'height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; padding:0 40px; box-sizing:border-box;' +
+              'color:#aaa; font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;';
+            story.parentNode.appendChild(spacerBottom);
+
+            var N = cards.length;
+            if (countTot) countTot.textContent = N;
+
+            var stickyEl = story.querySelector('.scroll-story-sticky');
+
+            var hint = doc.createElement('div');
+            hint.className = 'scroll-hint';
+            hint.innerHTML = '<span class="scroll-hint-arrow">↓</span><span>Scroll</span>';
+            stickyEl.appendChild(hint);
+
+            function easeOutQuad(t) { return 1 - (1 - t) * (1 - t); }
+            function easeInQuad(t)  { return t * t; }
+            function lerp(a, b, t)  { return a + (b - a) * t; }
+            function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+            // Shared with sizeBg() below — the bg sits `top: -maxBgDrift` so its
+            // drift (translateY, capped at this same value) never lets its top
+            // edge scroll into view. `update()` needs to clamp to this same
+            // number when computing the live drift (see fix note inside update).
+            var maxBgDrift = 0;
+
+            var SLOTS  = 2 * (N - 1);
+            var slotSz = 1 / SLOTS;
+
+            function enterFrac(i, p) {
+              if (i === 0) return 1;
+              var start = (2 * i - 1) * slotSz;
+              return clamp((p - start) / slotSz, 0, 1);
+            }
+            function exitFrac(i, p) {
+              if (i === N - 1) return 0;
+              var start = (2 * i + 1) * slotSz;
+              return clamp((p - start) / slotSz, 0, 1);
+            }
+
+            function update() {
+              var rect     = story.getBoundingClientRect();
+              var winH     = win.innerHeight;
+              var stickyH  = stickyEl.offsetHeight || winH;
+              var earlyStart = winH * 0.4;
+              var scrolled = Math.max(0, -rect.top + earlyStart);
+              var scrollable = story.offsetHeight - stickyH;
+              var dwellExtraVh = 75;
+              var dwellExtraPx = (dwellExtraVh / 100) * winH;
+              var activeScrollable = Math.max(1, scrollable - dwellExtraPx);
+              var p = clamp(scrolled / activeScrollable, 0, 1);
+
+              if (fill) fill.style.width = (p * 100) + '%';
+              if (bg) {
+                // FIX (beyond the verbatim main.js port): `scrolled` includes
+                // the `earlyStart` head-start bonus (so the section "wakes up"
+                // slightly before its top reaches the viewport), which can push
+                // `scrolled * 0.08` past `maxBgDrift` — the exact distance the
+                // bg was shifted up via `top: -maxBgDrift` in sizeBg(). Past
+                // that point the bg's drift overshoots its `top` offset and its
+                // own top edge scrolls into view, exposing whatever's behind it.
+                // Clamping the drift to `maxBgDrift` keeps the image's top edge
+                // pinned at the viewport's top edge at most — never past it.
+                bg.style.transform = 'translateY(' + Math.min(scrolled * 0.08, maxBgDrift) + 'px)';
+                bg.style.opacity = Math.min(1, p / 0.3);
+              }
+
+              var displayCard = 0;
+              for (var i = N - 1; i >= 0; i--) {
+                if (enterFrac(i, p) > 0) { displayCard = i; break; }
+              }
+              if (countCur) countCur.textContent = displayCard + 1;
+              hint.style.opacity = displayCard === 0 ? '1' : '0';
+
+              cards.forEach(function (card, i) {
+                var ef = enterFrac(i, p);
+                var xf = exitFrac(i, p);
+                var cardH = card.offsetHeight;
+
+                var tyEntry  = stickyH / 2;
+                var tyActive = -cardH / 2;
+
+                var ty, op, sc, bl, pe, zi;
+
+                if (ef < 1) {
+                  var f1 = easeOutQuad(ef);
+                  ty = lerp(tyEntry, tyActive, f1);
+                  op = ef;
+                  sc = 1;
+                  bl = 0;
+                  pe = 'none';
+                  zi = 3;
+                } else if (xf > 0) {
+                  var f2 = easeInQuad(xf);
+                  ty = tyActive;
+                  op = 1 - f2;
+                  sc = lerp(1, 0.5, f2);
+                  bl = lerp(0, 14, f2);
+                  pe = 'none';
+                  zi = 1;
+                } else {
+                  ty = tyActive;
+                  op = 1;
+                  sc = 1;
+                  bl = 0;
+                  pe = 'auto';
+                  zi = 2;
+                }
+
+                card.style.transform     = 'translateY(' + ty + 'px)';
+                card.style.opacity       = op;
+                card.style.scale         = sc;
+                card.style.filter        = bl > 0.1 ? 'blur(' + bl + 'px)' : 'none';
+                card.style.pointerEvents = pe;
+                card.style.zIndex        = zi;
+              });
+            }
+
+            function sizeBg() {
+              if (!bg) return;
+              var scrollable = story.offsetHeight - win.innerHeight;
+              maxBgDrift = scrollable * 0.08;
+              bg.style.top    = '-' + maxBgDrift + 'px';
+              bg.style.bottom = '0';
+            }
+            sizeBg();
+            win.addEventListener('resize', sizeBg);
+
+            var ticking = false;
+            win.addEventListener('scroll', function () {
+              if (!ticking) {
+                win.requestAnimationFrame(function () { update(); ticking = false; });
+                ticking = true;
+              }
+            }, { passive: true });
+
+            update();
+          }
+        },
+        'slider': {
+          name: 'slider', file: 'slider.html',
+          desc: 'Infinite-loop multi-slide image carousel · autoplay · swipe · photo-gallery lightbox',
+          template: 'tmpl-slider',
+          play: function (doc, win) {
+            var track = doc.getElementById('sliderTrack');
+            if (!track) return;
+
+            // Verbatim port of the "Infinite Loop Multi-slide Slider" IIFE in
+            // main.js (search `getElementById('sliderTrack')`) — retargeted at
+            // this iframe's `doc`/`win`. Includes the companion lightbox; both
+            // are wired together exactly as they are on the live page.
+            var dotsEl  = doc.getElementById('sliderDots');
+            var prevBtn = doc.getElementById('sliderPrev');
+            var nextBtn = doc.getElementById('sliderNext');
+
+            var origSlides = Array.prototype.slice.call(track.querySelectorAll('.slide'));
+            var total = origSlides.length;
+            if (!total) return;
+
+            var cloneCount = total;
+
+            for (var i = cloneCount - 1; i >= 0; i--) {
+              var cloneA = origSlides[((i % total) + total) % total].cloneNode(true);
+              cloneA.setAttribute('aria-hidden', 'true');
+              track.insertBefore(cloneA, track.firstChild);
+            }
+            for (var j = 0; j < cloneCount; j++) {
+              var cloneB = origSlides[j % total].cloneNode(true);
+              cloneB.setAttribute('aria-hidden', 'true');
+              track.appendChild(cloneB);
+            }
+
+            var allSlides = Array.prototype.slice.call(track.querySelectorAll('.slide'));
+            var current = cloneCount;
+            var isAnimating = false;
+            var viewport = track.parentElement;
+            var MOBILE_BP = 900;
+
+            function setSlideSizes() {
+              if (win.innerWidth <= MOBILE_BP) {
+                var w = Math.round(viewport.offsetWidth * 0.8);
+                allSlides.forEach(function (s) { s.style.flex = '0 0 ' + w + 'px'; s.style.width = w + 'px'; });
+              } else {
+                allSlides.forEach(function (s) { s.style.flex = ''; s.style.width = ''; });
+              }
+            }
+            function slideWidth() { return allSlides[0].offsetWidth + 12; }
+            function peekOffset() { return win.innerWidth <= MOBILE_BP ? Math.round(viewport.offsetWidth * 0.1) : 0; }
+            function snapTo(index) {
+              track.style.transition = 'none';
+              track.style.transform = 'translateX(-' + (index * slideWidth() - peekOffset()) + 'px)';
+              track.offsetHeight;
+              track.style.transition = '';
+            }
+
+            var animGuard = null;
+            function clearAnimGuard() { if (animGuard) { clearTimeout(animGuard); animGuard = null; } }
+            function finishAnimation() {
+              if (!isAnimating) return;
+              clearAnimGuard();
+              isAnimating = false;
+              if (current < cloneCount) {
+                current = current + total;
+                snapTo(current);
+              } else if (current >= cloneCount + total) {
+                current = current - total;
+                snapTo(current);
+              }
+            }
+            function goTo(index) {
+              if (isAnimating) return;
+              isAnimating = true;
+              current = index;
+              track.style.transform = 'translateX(-' + (current * slideWidth() - peekOffset()) + 'px)';
+              updateDots();
+              clearAnimGuard();
+              animGuard = setTimeout(finishAnimation, 600);
+            }
+
+            track.addEventListener('transitionend', function (e) {
+              if (e.target !== track || e.propertyName !== 'transform') return;
+              finishAnimation();
+            });
+
+            function realIndex() { return ((current - cloneCount) % total + total) % total; }
+            function updateDots() {
+              var ri = realIndex();
+              dotsEl.querySelectorAll('.slider-dot').forEach(function (d, idx) {
+                d.classList.toggle('active', idx === ri);
+              });
+            }
+
+            origSlides.forEach(function (_, idx) {
+              var d = doc.createElement('button');
+              d.className = 'slider-dot' + (idx === 0 ? ' active' : '');
+              d.setAttribute('aria-label', 'Slide ' + (idx + 1));
+              d.addEventListener('click', function () { goTo(cloneCount + idx); });
+              dotsEl.appendChild(d);
+            });
+
+            setSlideSizes();
+            snapTo(current);
+
+            prevBtn && prevBtn.addEventListener('click', function () { goTo(current - 1); });
+            nextBtn && nextBtn.addEventListener('click', function () { goTo(current + 1); });
+
+            var autoplay = setInterval(function () { goTo(current + 1); }, 5000);
+            // Stop the interval when this iframe is torn down (snippet switch / refresh)
+            // so multiple intervals don't pile up across reloads.
+            win.addEventListener('unload', function () { clearInterval(autoplay); });
+
+            win.addEventListener('resize', function () { setSlideSizes(); snapTo(current); });
+
+            // ---- Swipe navigation (verbatim) ----
+            (function () {
+              var touchStartX = 0, touchStartY = 0, touchActive = false, swiped = false;
+              var SWIPE_THRESHOLD = 24;
+              viewport.addEventListener('touchstart', function (e) {
+                touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
+                touchActive = true; swiped = false;
+              }, { passive: true });
+              viewport.addEventListener('touchmove', function (e) {
+                if (!touchActive || swiped) return;
+                var dx = e.touches[0].clientX - touchStartX, dy = e.touches[0].clientY - touchStartY;
+                if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+                  swiped = true;
+                  if (dx < 0) goTo(current + 1); else goTo(current - 1);
+                }
+              }, { passive: true });
+              viewport.addEventListener('touchend', function (e) {
+                if (!touchActive) return;
+                touchActive = false;
+                if (swiped) return;
+                var dx = e.changedTouches[0].clientX - touchStartX, dy = e.changedTouches[0].clientY - touchStartY;
+                if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+                  if (dx < 0) goTo(current + 1); else goTo(current - 1);
+                }
+              }, { passive: true });
+            })();
+
+            // ---- Photo Gallery Lightbox (verbatim) ----
+            (function () {
+              var lightbox = doc.getElementById('galleryLightbox');
+              if (!lightbox) return;
+
+              var closeBtn = doc.getElementById('galleryClose');
+              var prevBtn2 = doc.getElementById('galleryPrev');
+              var nextBtn2 = doc.getElementById('galleryNext');
+              var stageImg = doc.getElementById('galleryImage');
+              var captionEl = doc.getElementById('galleryCaption');
+
+              var gallery = origSlides.map(function (slide) {
+                var img = slide.querySelector('img');
+                return img ? { src: img.getAttribute('src'), alt: img.getAttribute('alt') || '' } : null;
+              }).filter(Boolean);
+
+              var galleryIndex = 0;
+              var SLIDE = 220;
+
+              function render(direction) {
+                var item = gallery[galleryIndex];
+                if (!item) return;
+
+                if (!direction) {
+                  stageImg.style.transition = 'none';
+                  stageImg.style.transform = 'translateX(0)';
+                  stageImg.style.opacity = '1';
+                  stageImg.src = item.src;
+                  stageImg.alt = item.alt;
+                  captionEl.textContent = item.alt;
+                  return;
+                }
+
+                var outX = direction === 'next' ? '-100%' : '100%';
+                var inX  = direction === 'next' ? '100%'  : '-100%';
+
+                stageImg.style.transition = 'transform ' + SLIDE + 'ms ease';
+                stageImg.style.transform = 'translateX(' + outX + ')';
+
+                var swapIn = function () {
+                  stageImg.style.transition = 'none';
+                  stageImg.style.transform = 'translateX(' + inX + ')';
+
+                  stageImg.src = item.src;
+                  stageImg.alt = item.alt;
+                  captionEl.textContent = item.alt;
+
+                  var decoded = (stageImg.decode ? stageImg.decode() : new Promise(function (resolve) {
+                    stageImg.onload = resolve;
+                    stageImg.onerror = resolve;
+                  })).catch(function () {});
+
+                  decoded.then(function () {
+                    void stageImg.offsetWidth;
+                    win.requestAnimationFrame(function () {
+                      stageImg.style.transition = 'transform ' + SLIDE + 'ms ease';
+                      stageImg.style.transform = 'translateX(0)';
+                    });
+                  });
+                };
+
+                setTimeout(swapIn, SLIDE);
+              }
+
+              function open(index) {
+                galleryIndex = ((index % gallery.length) + gallery.length) % gallery.length;
+                render();
+                lightbox.classList.add('open');
+                doc.body.style.overflow = 'hidden';
+              }
+              function close() {
+                lightbox.classList.remove('open');
+                doc.body.style.overflow = '';
+                stageImg.src = '';
+              }
+              function next() { galleryIndex = (galleryIndex + 1) % gallery.length; render('next'); }
+              function prev() { galleryIndex = (galleryIndex - 1 + gallery.length) % gallery.length; render('prev'); }
+
+              track.addEventListener('click', function (e) {
+                var img = e.target.closest('img');
+                if (!img) return;
+                var src = img.getAttribute('src');
+                var idx = gallery.findIndex(function (g) { return g.src === src; });
+                if (idx > -1) open(idx);
+              });
+
+              closeBtn && closeBtn.addEventListener('click', close);
+              nextBtn2 && nextBtn2.addEventListener('click', next);
+              prevBtn2 && prevBtn2.addEventListener('click', prev);
+
+              lightbox.addEventListener('click', function (e) { if (e.target === lightbox) close(); });
+
+              doc.addEventListener('keydown', function (e) {
+                if (!lightbox.classList.contains('open')) return;
+                if (e.key === 'Escape') close();
+                else if (e.key === 'ArrowRight') next();
+                else if (e.key === 'ArrowLeft') prev();
+              });
+
+              var lbTouchStartX = 0, lbTouchStartY = 0, lbTouchActive = false, lbSwiped = false;
+              var LB_H_THRESHOLD = 24, LB_V_THRESHOLD = 70;
+
+              lightbox.addEventListener('touchstart', function (e) {
+                lbTouchStartX = e.touches[0].clientX; lbTouchStartY = e.touches[0].clientY;
+                lbTouchActive = true; lbSwiped = false;
+                stageImg.style.transition = 'none';
+              }, { passive: true });
+
+              lightbox.addEventListener('touchmove', function (e) {
+                if (!lbTouchActive || lbSwiped) return;
+                var dx = e.touches[0].clientX - lbTouchStartX, dy = e.touches[0].clientY - lbTouchStartY;
+                if (Math.abs(dy) > Math.abs(dx)) {
+                  if (dy > 0) {
+                    stageImg.style.transform = 'translateY(' + (dy * 0.5) + 'px)';
+                    stageImg.style.opacity = String(Math.max(1 - dy / 400, 0.4));
+                  }
+                } else if (Math.abs(dx) > LB_H_THRESHOLD) {
+                  lbSwiped = true;
+                  stageImg.style.transform = '';
+                  stageImg.style.opacity = '';
+                  if (dx < 0) next(); else prev();
+                }
+              }, { passive: true });
+
+              lightbox.addEventListener('touchend', function (e) {
+                if (!lbTouchActive) return;
+                lbTouchActive = false;
+                if (lbSwiped) return;
+                stageImg.style.transition = '';
+                var dx = e.changedTouches[0].clientX - lbTouchStartX, dy = e.changedTouches[0].clientY - lbTouchStartY;
+                if (Math.abs(dy) > Math.abs(dx) && dy > LB_V_THRESHOLD) {
+                  close();
+                } else if (Math.abs(dx) > LB_H_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+                  if (dx < 0) next(); else prev();
+                }
+                stageImg.style.transform = '';
+                stageImg.style.opacity = '';
+              }, { passive: true });
+            })();
+          }
+        },
+        'header': {
+          name: 'header', file: 'header.html',
+          desc: 'Sticky site header · logo row · nav · slide-out mobile menu + overlay',
+          template: 'tmpl-header',
+          play: function (doc, win) {
+            // Verbatim port of the mobile-menu-toggle IIFE in main.js
+            // (search "hamburger"/"mobileMenu"/"menuOverlay") — retargeted
+            // at this iframe's `doc`/`win` so the exact same open/close
+            // behavior, icon swap, and link-click-closes-menu plays here.
+            var hamburger  = doc.getElementById('hamburger');
+            var mobileMenu = doc.getElementById('mobileMenu');
+            var menuOverlay = doc.getElementById('menuOverlay');
+            var mobileMenuClose = doc.getElementById('mobileMenuClose');
+            if (!hamburger || !mobileMenu || !menuOverlay) return;
+
+            // The header's nav/menu links are REAL hrefs (index.html, sports.html,
+            // #anchors, etc.) — on the live site that's correct, but inside this
+            // preview iframe a click would navigate the iframe itself away from
+            // the snippet (to a 404, since those pages don't live under /snippets/).
+            // Swallow the navigation so the preview stays put; everything else
+            // (the close-on-click behavior wired below) still fires normally.
+            doc.querySelectorAll('.header-nav a, .mobile-menu a').forEach(function (link) {
+              link.addEventListener('click', function (e) { e.preventDefault(); });
+            });
+
+            function openMenu() {
+              mobileMenu.classList.add('open');
+              menuOverlay.classList.add('open');
+              hamburger.innerHTML = '&#10005;';
+              hamburger.setAttribute('aria-label', 'Close menu');
+            }
+            function closeMenu() {
+              mobileMenu.classList.remove('open');
+              menuOverlay.classList.remove('open');
+              hamburger.innerHTML = '&#9776;';
+              hamburger.setAttribute('aria-label', 'Menu');
+            }
+
+            hamburger.addEventListener('click', function () {
+              mobileMenu.classList.contains('open') ? closeMenu() : openMenu();
+            });
+            menuOverlay.addEventListener('click', closeMenu);
+            // Dedicated in-drawer close button — the drawer is full-viewport
+            // and stacks above the header, covering the morphed ✕ hamburger
+            // and the overlay beneath it (the bug just fixed on the live site:
+            // "stuck open" drawer with an invisible close control).
+            if (mobileMenuClose) mobileMenuClose.addEventListener('click', closeMenu);
+            // Tapping the drawer's empty/background space (the open area
+            // below the last link, now that the drawer is ~80% width with
+            // the page peeking through) also dismisses it — verbatim port
+            // of the live-site behavior. Links/close button are direct
+            // children, so clicks on THEM set e.target to that child, not
+            // the menu itself; only true background taps reach here.
+            mobileMenu.addEventListener('click', function (e) {
+              if (e.target === mobileMenu) closeMenu();
+            });
+            mobileMenu.querySelectorAll('a').forEach(function (link) {
+              link.addEventListener('click', closeMenu);
+            });
+          }
+        },
+        'footer': {
+          name: 'footer', file: 'footer.html',
+          desc: 'Site footer · brand + tagline · policy links · subscribe form · social · payment icons · legal',
+          template: 'tmpl-footer',
+          play: function (doc, win) {
+            // The live site wires this form with `onsubmit="return false;"`
+            // as a placeholder until an email provider (Klaviyo/Mailchimp/
+            // Formspree) is chosen. Same guard here so Enter/click on the
+            // pane's subscribe button doesn't try to navigate the iframe.
+            var form = doc.getElementById('footerSubscribeForm');
+            if (form) form.addEventListener('submit', function (e) { e.preventDefault(); });
+
+            // Same iframe-navigation guard as the header: the policy links
+            // (privacy/returns/shipping/contact) are real hrefs that don't
+            // exist under /snippets/ — swallow clicks so the preview stays
+            // put. Social links open target="_blank" already (new tab), so
+            // they're left alone.
+            doc.querySelectorAll('.footer-links a').forEach(function (link) {
+              link.addEventListener('click', function (e) { e.preventDefault(); });
+            });
+          }
+        }
+      };
+
+      var body = document.getElementById('workshopBody');
+      var barName = document.getElementById('barName');
+      var barDesc = document.getElementById('barDesc');
+      var copyBtn = document.getElementById('copyBtn');
+      var copyLabel = copyBtn.querySelector('.label');
+      var refreshBtn = document.getElementById('refreshBtn');
+      var currentRootEls = [];
+      var currentId = null; // which snippet is active — kept in sync with the URL hash
+      var seq = 0; // guards against stale async work after a rapid snippet switch
+
+      // ---- Shared CSS-tooling: extraction, !important forcing, highlighter ----
+      function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+      function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+      // Raw source text of style.css, fetched once and split into lines —
+      // lets us tag each seeded rule with the line it actually lives on in
+      // the real file (e.g. `/* style.css:73 */`), so locating it for a
+      // copy/paste round-trip doesn't require Cmd+F as the file grows.
+      var styleCssLinesPromise = fetch('../style.css')
+        .then(function (r) { return r.text(); })
+        .then(function (text) { return text.split('\n'); })
+        .catch(function () { return []; });
+
+      // Finds the 1-based line number where a rule's selector is declared.
+      // Matches the FIRST selector in a comma-separated group at the start
+      // of a line (allowing for grouped selectors spanning multiple lines),
+      // immediately followed by `,` or `{` — good enough to be unambiguous
+      // for this stylesheet's formatting without a full CSS source-map.
+      function lineNumberForSelector(lines, selectorText) {
+        var first = selectorText.split(',')[0].trim();
+        if (!first) return null;
+        var re = new RegExp('^\\s*' + escapeRe(first) + '\\s*[,{]');
+        for (var i = 0; i < lines.length; i++) {
+          if (re.test(lines[i])) return i + 1;
+        }
+        return null;
+      }
+      function findStyleSheet() {
+        for (var i = 0; i < document.styleSheets.length; i++) {
+          var sheet = document.styleSheets[i];
+          try { if (sheet.href && /style\.css/.test(sheet.href)) return sheet; } catch (e) {}
+        }
+        return null;
+      }
+      function collectClassNames(roots) {
+        var set = {};
+        function add(el) { el.classList && el.classList.forEach(function (c) { set[c] = true; }); }
+        roots.forEach(function (root) {
+          add(root);
+          root.querySelectorAll('*').forEach(add);
+        });
+        return Object.keys(set);
+      }
+      function extractCurrentCss(roots) {
+        var sheet = findStyleSheet();
+        if (!sheet) return Promise.resolve('');
+        var patterns = collectClassNames(roots).map(function (c) { return new RegExp('\\.' + escapeRe(c) + '(?![\\w-])'); });
+        function matches(sel) { return patterns.some(function (re) { return re.test(sel); }); }
+        return styleCssLinesPromise.then(function (lines) {
+          var blocks = [];
+          function walk(rules, mediaCondition) {
+            for (var i = 0; i < rules.length; i++) {
+              var rule = rules[i];
+              if (rule.type === CSSRule.STYLE_RULE && matches(rule.selectorText)) {
+                var ln = lines.length ? lineNumberForSelector(lines, rule.selectorText) : null;
+                var tag = ln ? '/* style.css:' + ln + ' */\n' : '';
+                blocks.push(tag + (mediaCondition
+                  ? '@media ' + mediaCondition + ' {\n  ' + rule.cssText.replace(/\n/g, '\n  ') + '\n}'
+                  : rule.cssText));
+              } else if (rule.type === CSSRule.MEDIA_RULE) {
+                walk(rule.cssRules, rule.conditionText);
+              }
+            }
+          }
+          try { walk(sheet.cssRules, null); } catch (e) { return ''; }
+          return blocks.join('\n\n');
+        });
+      }
+      function forceImportant(cssText) {
+        // Deliberately text-based, NOT a CSSOM round-trip. Parsing into a
+        // CSSStyleSheet and reading rule.cssText back out (the old approach)
+        // makes Chrome re-serialize declarations — and any var()-based
+        // shorthand like `border-color: var(--black)` comes back mangled
+        // into broken, empty longhand fragments (`border-right-color: ;`),
+        // silently dropping the property. Operating on the raw text instead
+        // preserves the original property/value verbatim; we just append
+        // ` !important` to each declaration ourselves.
+        function addImportant(body) {
+          return body.replace(/([\w-]+)\s*:\s*([^;]+?)\s*(;|$)/g, function (m, prop, val, end) {
+            val = val.trim();
+            if (/!important$/i.test(val)) return prop + ': ' + val + ';';
+            return prop + ': ' + val + ' !important;';
+          });
+        }
+        function walk(text) {
+          var out = '', i = 0;
+          while (i < text.length) {
+            var open = text.indexOf('{', i);
+            if (open === -1) { out += text.slice(i); break; }
+            var head = text.slice(i, open);
+            out += head + '{';
+            var depth = 1, j = open + 1;
+            while (j < text.length && depth > 0) {
+              if (text[j] === '{') depth++;
+              else if (text[j] === '}') depth--;
+              j++;
+            }
+            var bodyText = text.slice(open + 1, j - 1);
+            out += /^\s*@media/i.test(head) ? walk(bodyText) : addImportant(bodyText);
+            out += '}';
+            i = j;
+          }
+          return out;
+        }
+        try { return walk(cssText); } catch (e) { return cssText; }
+      }
+      function highlightCssLine(line) {
+        var indent = line.match(/^\s*/)[0];
+        var rest = line.slice(indent.length);
+        if (!rest) return line;
+        var m;
+        if ((m = rest.match(/^(\/\* style\.css:\d+ \*\/)\s*$/))) return indent + '<span class="tok-srcline">' + escapeHtml(m[1]) + '</span>';
+        if ((m = rest.match(/^(\/\*.*\*\/)\s*$/))) return indent + '<span class="tok-comment">' + escapeHtml(m[1]) + '</span>';
+        if ((m = rest.match(/^(@[\w-]+)(.*?)(\{)\s*$/))) {
+          return indent + '<span class="tok-at">' + escapeHtml(m[1]) + '</span>' +
+                 '<span class="tok-cond">' + escapeHtml(m[2]) + '</span><span class="tok-punct">' + m[3] + '</span>';
+        }
+        if (/\{\s*$/.test(rest) && !/;/.test(rest)) {
+          m = rest.match(/^(.+?)\s*(\{)\s*$/);
+          return indent + '<span class="tok-selector">' + escapeHtml(m[1]) + '</span> <span class="tok-punct">' + m[2] + '</span>';
+        }
+        if ((m = rest.match(/^(.+?)\s*(\{)(.*)(\})\s*$/))) {
+          var declHtml = m[3].split(';').map(function (d, i, arr) {
+            var lead = d.match(/^\s*/)[0];
+            var dRest = d.slice(lead.length);
+            if (!dRest) return d;
+            var dm = dRest.match(/^([\w-]+)(\s*:\s*)(.+?)\s*$/);
+            var sep = (i < arr.length - 1) ? '<span class="tok-punct">;</span>' : '';
+            if (dm) {
+              return lead + '<span class="tok-prop">' + escapeHtml(dm[1]) + '</span><span class="tok-punct">:</span> ' +
+                     '<span class="tok-value">' + escapeHtml(dm[3]) + '</span>' + sep;
+            }
+            return lead + escapeHtml(dRest) + sep;
+          }).join('');
+          return indent + '<span class="tok-selector">' + escapeHtml(m[1]) + '</span> <span class="tok-punct">' + m[2] + '</span>' +
+                 declHtml + ' <span class="tok-punct">' + m[4] + '</span>';
+        }
+        if (/^\}\s*$/.test(rest)) return indent + '<span class="tok-punct">}</span>';
+        if ((m = rest.match(/^([\w-]+)(\s*:\s*)(.+?)(;?)\s*$/))) {
+          var value = m[3];
+          var imp = value.match(/\s*!important\s*$/i);
+          var mainVal = imp ? value.slice(0, value.length - imp[0].length) : value;
+          return indent + '<span class="tok-prop">' + escapeHtml(m[1]) + '</span><span class="tok-punct">:</span> ' +
+                 '<span class="tok-value">' + escapeHtml(mainVal) + '</span>' +
+                 (imp ? ' <span class="tok-important">!important</span>' : '') +
+                 (m[4] ? '<span class="tok-punct">' + m[4] + '</span>' : '');
+        }
+        return escapeHtml(rest) ? indent + escapeHtml(rest) : '';
+      }
+      function highlightCss(text) { return text.split('\n').map(highlightCssLine).join('\n'); }
+
+      // ---- Build one device pane (iframe + slider + CSS editor) --------
+      function buildPane(opts) {
+        var pane = document.createElement('div');
+        pane.className = 'device-pane is-' + opts.kind;
+        pane.innerHTML =
+          '<div class="device-pane-head"><div class="slider-wrap">' +
+            '<span class="slider-label">' + opts.width + 'px</span>' +
+            '<input type="range" min="' + opts.min + '" max="' + opts.max + '" step="' + opts.step + '" value="' + opts.width + '">' +
+          '</div></div>' +
+          '<div class="device-pane-body"></div>' +
+          '<div class="css-editor-wrap">' +
+            '<div class="css-editor-bar"><span>Live CSS — ' + opts.kind + ' pane</span>' +
+              '<button class="copy-css-btn" type="button">Copy CSS</button></div>' +
+            '<div class="css-editor-shell">' +
+              '<div class="css-gutter" aria-hidden="true"></div>' +
+              '<pre class="css-highlight" aria-hidden="true"><code></code></pre>' +
+              '<textarea class="css-editor" spellcheck="false" placeholder="' + opts.placeholder + '"></textarea>' +
+            '</div>' +
+          '</div>';
+
+        var slider = pane.querySelector('input[type="range"]');
+        var label  = pane.querySelector('.slider-label');
+        var body   = pane.querySelector('.device-pane-body');
+        var ta     = pane.querySelector('.css-editor');
+        var hl     = pane.querySelector('.css-highlight');
+        var hlCode = hl.querySelector('code');
+        var gutter = pane.querySelector('.css-gutter');
+        var copyCssBtn = pane.querySelector('.copy-css-btn');
+
+        var iframe = document.createElement('iframe');
+        iframe.style.width = opts.width + 'px';
+        iframe.srcdoc =
+          '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+          '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+          '<link rel="stylesheet" href="../style.css">' +
+          '<style>body{margin:0;}</style><style id="live-overrides"></style>' +
+          '</head><body></body></html>';
+        body.appendChild(iframe);
+
+        var pendingCss = '';
+        function applyCss() {
+          var doc = iframe.contentDocument;
+          if (!doc) return;
+          var tag = doc.getElementById('live-overrides');
+          if (tag) tag.textContent = pendingCss;
+        }
+        iframe.addEventListener('load', function () {
+          var doc = iframe.contentDocument, win = iframe.contentWindow;
+          currentRootEls.forEach(function (el) { doc.body.appendChild(doc.importNode(el, true)); });
+          applyCss();
+          if (opts.play) opts.play(doc, win);
+        });
+
+        function reposition() {
+          var min = parseFloat(slider.min), max = parseFloat(slider.max), val = parseFloat(slider.value);
+          var percent = (val - min) / (max - min), thumb = 16, track = slider.offsetWidth;
+          label.style.left = (thumb / 2 + percent * (track - thumb)) + 'px';
+          label.textContent = Math.round(val) + 'px';
+        }
+        slider.addEventListener('input', function () { iframe.style.width = slider.value + 'px'; reposition(); });
+        window.addEventListener('resize', reposition);
+        // Defer the first call: at this point `pane` hasn't been appended to
+        // the document yet, so `slider.offsetWidth` reads as 0 and the label
+        // lands near the left edge instead of over the thumb. Waiting a frame
+        // lets loadSnippet() finish inserting the row first, so the slider has
+        // its real layout width by the time we measure it.
+        requestAnimationFrame(reposition);
+
+        function renderGutter() {
+          var n = ta.value.split('\n').length;
+          var out = '';
+          for (var i = 1; i <= n; i++) out += '<div>' + i + '</div>';
+          gutter.innerHTML = out;
+          gutter.scrollTop = ta.scrollTop;
+        }
+        function renderHl() {
+          hlCode.innerHTML = highlightCss(ta.value) + '\n';
+          hl.scrollTop = ta.scrollTop; hl.scrollLeft = ta.scrollLeft;
+          renderGutter();
+        }
+        ta.addEventListener('scroll', function () {
+          hl.scrollTop = ta.scrollTop; hl.scrollLeft = ta.scrollLeft;
+          gutter.scrollTop = ta.scrollTop;
+        });
+        var t;
+        ta.addEventListener('input', function () {
+          renderHl();
+          clearTimeout(t);
+          t = setTimeout(function () { pendingCss = forceImportant(ta.value); applyCss(); }, 150);
+        });
+
+        var defaultCopyLabel = copyCssBtn.textContent;
+        copyCssBtn.addEventListener('click', function () {
+          var css = ta.value.trim();
+          if (!css) return;
+          navigator.clipboard.writeText(css).then(function () {
+            copyCssBtn.classList.add('copied'); copyCssBtn.textContent = 'Copied!';
+            setTimeout(function () { copyCssBtn.classList.remove('copied'); copyCssBtn.textContent = defaultCopyLabel; }, 1600);
+          });
+        });
+
+        return {
+          el: pane,
+          seedCss: function (css) {
+            ta.value = css;
+            renderHl();
+            // Deliberately DON'T push the seeded snapshot into #live-overrides
+            // here. The seeded rules are copies of what's already active via
+            // the linked style.css — forcing `!important` on them the moment
+            // they're seeded would let them beat inline styles that a snippet's
+            // own JS sets dynamically (e.g. story-canvas's scroll engine drives
+            // `.scroll-card` opacity/transform via `el.style.*` every frame —
+            // an `!important`-forced `opacity: 0` from the seed would pin every
+            // card invisible, which is exactly the "blank pane" bug this fixes).
+            // The overlay only needs to exist once the user actually edits the
+            // textarea and diverges from the seed — the `input` handler below
+            // already wires that up.
+            pendingCss = '';
+            applyCss();
+          }
+        };
+      }
+
+      // ---- Load a snippet into the workshop -----------------------------
+      function loadSnippet(id, opts) {
+        var entry = REGISTRY[id];
+        if (!entry) return;
+        var mySeq = ++seq;
+        currentId = id;
+
+        // Keep the URL hash in sync so a page refresh (or back/forward, or a
+        // shared link) lands back on the same snippet instead of resetting to
+        // the first one. replaceState avoids polluting browser history with
+        // every click, and the `fromHash` flag stops the hashchange listener
+        // below from looping back into another reload of the same snippet.
+        if (!(opts && opts.fromHash) && location.hash.slice(1) !== id) {
+          history.replaceState(null, '', '#' + id);
+        }
+
+        barName.textContent = entry.name;
+        barDesc.textContent = entry.noPreview ? 'No isolated live preview — see notes' : entry.desc;
+        body.innerHTML = '';
+        currentRootEls = [];
+
+        document.querySelectorAll('.sidebar-item').forEach(function (b) {
+          b.classList.toggle('is-active', b.getAttribute('data-snippet') === id);
+        });
+
+        if (entry.noPreview) {
+          copyBtn.style.display = 'none';
+          var wrap = document.createElement('div');
+          wrap.className = 'no-preview';
+          wrap.innerHTML =
+            '<div class="no-preview-card">' +
+              '<h2>No isolated live preview for "' + entry.name + '"</h2>' +
+              '<p>' + entry.reason + '</p>' +
+              '<p>Open <a href="' + entry.file + '" target="_blank" rel="noopener">' + entry.file + '</a> ' +
+              'for full documentation, placeholders, and dependency notes — or view it ' +
+              'in context on <a href="../index.html" target="_blank" rel="noopener">the live site</a> — every page uses it.</p>' +
+            '</div>';
+          body.appendChild(wrap);
+          return;
+        }
+
+        copyBtn.style.display = '';
+        var tmpl = document.getElementById(entry.template);
+        currentRootEls = Array.prototype.slice.call(tmpl.content.children);
+
+        var row = document.createElement('div');
+        row.className = 'device-row';
+        body.appendChild(row);
+
+        var desk = buildPane({ kind: 'desktop', width: 1280, min: 600, max: 2000, step: 10, play: entry.play,
+          placeholder: '.hero h1 { font-size: 60px; }' });
+        var mob  = buildPane({ kind: 'mobile', width: 390, min: 320, max: 520, step: 5, play: entry.play,
+          placeholder: '.hero-text { padding: 0 16px; }' });
+        row.appendChild(desk.el);
+        row.appendChild(mob.el);
+
+        extractCurrentCss(currentRootEls).then(function (seeded) {
+          if (seeded && mySeq === seq) { desk.seedCss(seeded); mob.seedCss(seeded); }
+        });
+
+        copyBtn.onclick = function () {
+          var html = currentRootEls.map(function (el) { return el.outerHTML; }).join('\n\n')
+            .split('\n').map(function (l) { return l.replace(/^ {4}/, ''); }).join('\n').trim();
+          navigator.clipboard.writeText(html).then(function () {
+            copyBtn.classList.add('copied'); copyLabel.textContent = 'Copied!';
+            setTimeout(function () { copyBtn.classList.remove('copied'); copyLabel.textContent = 'Copy code'; }, 1600);
+          });
+        };
+      }
+
+      document.querySelectorAll('.sidebar-item').forEach(function (btn) {
+        btn.addEventListener('click', function () { loadSnippet(btn.getAttribute('data-snippet')); });
+      });
+
+      // Refresh = reload the CURRENTLY active snippet only (rebuilds its
+      // panes from scratch, discarding any live-CSS edits) — not a full page
+      // reload, so you stay exactly where you are.
+      refreshBtn.addEventListener('click', function () {
+        if (currentId) loadSnippet(currentId);
+      });
+
+      // Back/forward navigation between snippets via the hash.
+      window.addEventListener('hashchange', function () {
+        var id = location.hash.slice(1);
+        if (id && REGISTRY[id] && id !== currentId) loadSnippet(id, { fromHash: true });
+      });
+
+      // Initial view: honor a snippet name in the URL hash (so refreshing —
+      // or sharing a link — returns to the same snippet) and fall back to
+      // hero-cone for a bare visit or an unrecognized hash.
+      var initialId = location.hash.slice(1);
+      loadSnippet((initialId && REGISTRY[initialId]) ? initialId : 'hero-cone', { fromHash: true });
+    })();
+  </script>
+
+</body>
+</html>

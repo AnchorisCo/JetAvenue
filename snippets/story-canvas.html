@@ -1,0 +1,138 @@
+<!--
+  SNIPPET NAME: "story-canvas"  (a.k.a. scroll-story / sticky scroll-card stack)
+  ===============================================================================
+  What it is:
+    A full-bleed, scroll-driven storytelling section: a sticky textured
+    background with a card stack on top. As the user scrolls through the
+    section, cards transition in sequence — the current card dwells (fully
+    visible, no motion), then simultaneously exits (shrinks/blurs) while the
+    next card enters (rises from the viewport bottom) — driven by pure
+    scroll-position math (not timers), with a progress bar + counter
+    ("2 / 6"). This is the site's signature "wow" section — usually placed
+    right after the hero to hook visitors into scrolling further.
+
+  Used on:
+    - index.html (the home page, directly below the hero/slider)
+
+  Requires (already in shared style.css — search "scroll-story" / "scroll-card"):
+    .scroll-story, .scroll-story-sticky, .scroll-bg, .scroll-overlay,
+    .scroll-progress-bar, .scroll-progress-fill, .scroll-cards, .scroll-card,
+    .scroll-card-inner, .scroll-card-tag, .scroll-card-image,
+    .scroll-card-img-placeholder, .scroll-counter
+
+  Requires (JS — THIS IS THE IMPORTANT PART):
+    This section is powered by a ~150-line scroll-math engine in main.js
+    (search for `getElementById('scrollStory')` — currently around line 487).
+    It is too large/intricate to safely duplicate inline here without risking
+    drift between copies. To port this section to a new page or client site:
+
+      1. Copy the ENTIRE IIFE from main.js verbatim — from the comment block
+         starting "// Layout of progress [0,1]:" through its closing `})();`
+         (~lines 480-643 in this build's main.js)
+      2. It auto-derives everything from the DOM: card count (`N`), per-card
+         dwell/transition timing, and total scroll distance — so you do NOT
+         need to edit any constants when changing the number of cards. Just
+         add/remove `.scroll-card` elements and the math adapts.
+      3. Keep the element IDs exactly as named (`scrollStory`, `scrollBg`,
+         `scrollProgressFill`, `scrollCountCurrent`, `scrollCountTotal`) —
+         the script selects them by ID.
+      4. Respects `prefers-reduced-motion` — verify this still holds after
+         porting (check near the top of the IIFE).
+
+  Placeholders to swap when reusing for a NEW CLIENT SITE:
+    - .scroll-bg background-image — a single large textured/branded image
+      that stays fixed behind the whole card sequence
+    - Each .scroll-card: .scroll-card-tag (short eyebrow label), <h2> hook
+      headline, <p> supporting copy, optional CTA button (only on the LAST
+      card, see card index 5 in the source for the pattern), and the image
+      + descriptive alt text in .scroll-card-img-placeholder
+    - Card count: 4-6 cards is the sweet spot — enough to build a narrative
+      arc (problem → solution → proof → social proof → CTA) without the
+      section overstaying its welcome. The engine adapts automatically.
+    - #scrollCountTotal is set by the script itself from the card count —
+      no need to hardcode it
+-->
+
+<!-- ══════════════════════════════════════════
+     SCROLL STORY, sticky scroll card stack
+     ══════════════════════════════════════════ -->
+<div class="scroll-story" id="scrollStory">
+  <div class="scroll-story-sticky">
+
+    <div class="scroll-bg" id="scrollBg" role="img" aria-label="[Descriptive label for the background texture/scene]"
+         style="background-image: url('assets/images/REPLACE-background.jpg');"></div>
+    <!-- Dark overlay so cards read clearly over the background -->
+    <div class="scroll-overlay"></div>
+
+    <!-- Progress indicator -->
+    <div class="scroll-progress-bar"><div class="scroll-progress-fill" id="scrollProgressFill"></div></div>
+
+    <!-- Cards — the engine adapts to however many of these exist; aim for 4-6 -->
+    <div class="scroll-cards" id="scrollCards">
+
+      <div class="scroll-card" data-index="0">
+        <div class="scroll-card-inner">
+          <div class="scroll-card-tag">[Short Eyebrow Tag]</div>
+          <h2>[Hook headline — the "wait, what?" moment]</h2>
+          <p>[1-2 sentences expanding on the hook — the problem you solve or the differentiator you lead with.]</p>
+        </div>
+        <div class="scroll-card-image">
+          <div class="scroll-card-img-placeholder"><img src="assets/images/REPLACE.jpg" alt="[Descriptive, keyword-relevant alt text]" loading="lazy"/></div>
+        </div>
+      </div>
+
+      <div class="scroll-card" data-index="1">
+        <div class="scroll-card-inner">
+          <div class="scroll-card-tag">[Short Eyebrow Tag]</div>
+          <h2>[Headline — build out the story / show range or versatility]</h2>
+          <p>[Supporting copy.]</p>
+        </div>
+        <div class="scroll-card-image">
+          <div class="scroll-card-img-placeholder"><img src="assets/images/REPLACE.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+        </div>
+      </div>
+
+      <div class="scroll-card" data-index="2">
+        <div class="scroll-card-inner">
+          <div class="scroll-card-tag">[Short Eyebrow Tag]</div>
+          <h2>[Headline — proof point, use case, or audience-specific angle]</h2>
+          <p>[Supporting copy.]</p>
+        </div>
+        <div class="scroll-card-image">
+          <div class="scroll-card-img-placeholder"><img src="assets/images/REPLACE.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+        </div>
+      </div>
+
+      <div class="scroll-card" data-index="3">
+        <div class="scroll-card-inner">
+          <div class="scroll-card-tag">[Short Eyebrow Tag]</div>
+          <h2>[Headline — quality / craftsmanship / what sets you apart]</h2>
+          <p>[Supporting copy.]</p>
+        </div>
+        <div class="scroll-card-image">
+          <div class="scroll-card-img-placeholder"><img src="assets/images/REPLACE.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+        </div>
+      </div>
+
+      <!-- Final card: close the story with a clear call to action -->
+      <div class="scroll-card" data-index="4">
+        <div class="scroll-card-inner">
+          <div class="scroll-card-tag">[Ready to...? / Get Started]</div>
+          <h2>[Closing headline — the "now act" moment]</h2>
+          <p>[Reassurance copy — turnaround time, guarantee, what happens next.]</p>
+          <a href="REPLACE.html" class="btn btn-primary btn-large" style="margin-top:8px;">[Primary CTA Label →]</a>
+        </div>
+        <div class="scroll-card-image">
+          <div class="scroll-card-img-placeholder"><img src="assets/images/REPLACE.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+        </div>
+      </div>
+
+    </div><!-- /scroll-cards -->
+
+    <!-- Card counter — #scrollCountTotal is populated by the JS engine -->
+    <div class="scroll-counter">
+      <span id="scrollCountCurrent">1</span> / <span id="scrollCountTotal">5</span>
+    </div>
+
+  </div><!-- /scroll-story-sticky -->
+</div><!-- /scroll-story -->

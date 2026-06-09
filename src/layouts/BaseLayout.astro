@@ -1,0 +1,86 @@
+---
+/*
+  BaseLayout
+  ==========
+  Every page on a themed site renders through this layout. It wires in:
+    1. The active theme's design tokens (colors/fonts/spacing/radius)
+    2. A small global reset that rides on top of those tokens
+    3. The site-wide Header and Footer — defined ONCE here (site chrome
+       that's identical on every page) so individual pages never have to
+       remember to include them or keep their props in sync. This is the
+       exact "fix once, applies everywhere" win the rebuild is for — on
+       the old static site, header/footer markup was copy-pasted into
+       every single page.
+
+  To point this whole site at a DIFFERENT theme (e.g. spinning up RecoilOne
+  from this same component library), change ONE line: the tokens import
+  below. Nothing else in the codebase needs to know which theme is active.
+
+  NOTE: site-wide nav/footer content lives below as plain constants for now
+  (single-brand site). If/when this library powers multiple client sites
+  from one codebase, this is the natural spot to swap in a per-theme
+  site-config import instead — same "change one line" principle as tokens.
+*/
+import '../themes/jetavenue/tokens.css'  /* ← change this one line per brand */;
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = '' } = Astro.props;
+
+const siteLogo = { src: '/images/logos/jetavenue-logo.svg', alt: 'JetAvenue' };
+
+const navLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Services', href: '/services' },
+  { label: 'About', href: '/#about' },
+  { label: 'FAQ', href: '/#faq' },
+  { label: 'Contact', href: '/contact' },
+];
+
+const headerCta = { label: 'Get a Free Assessment →', href: '/contact' };
+
+const footerPolicyLinks = [
+  { label: 'Privacy Policy', href: '/privacy-policy' },
+  { label: 'Terms & Conditions', href: '/terms' },
+  { label: 'Contact', href: '/contact' },
+];
+
+const footerSocial = {
+  facebook: '',
+  instagram: '',
+  pinterest: '',
+};
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+  </head>
+  <body>
+    <Header logo={siteLogo} navLinks={navLinks} cta={headerCta} />
+    <slot />
+    <Footer
+      logo={{ src: '/images/logos/jetavenue-logo.svg', alt: 'JetAvenue — Mobile Private Jet Repair' }}
+      tagline="Mobile Private Jet Repair & Maintenance — Nationwide"
+      policyLinks={footerPolicyLinks}
+      social={footerSocial}
+      legalName="JetAvenue"
+      address=""
+    />
+  </body>
+</html>

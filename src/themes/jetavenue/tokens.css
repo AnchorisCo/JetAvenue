@@ -1,0 +1,40 @@
+/* ═══════════════════════════════════════════════
+   TOKENS.CSS — JetAvenue.net Brand
+   Light, modern. Not dark.
+   ═══════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+:root {
+
+  /* ── TYPOGRAPHY ── */
+  --font-heading: 'Montserrat', -apple-system, sans-serif;
+  --font-body:    'Montserrat', -apple-system, sans-serif;
+
+  /* ── BRAND COLORS ── */
+  --color-brand:      #F36F21;   /* JetAvenue orange — exact logo color */
+  --color-brand-dark: #D45A10;   /* orange hover */
+  --color-accent:     #F36F21;
+  --color-accent-bg:  #FFF3E6;
+
+  /* ── NEUTRALS (light-first) ── */
+  --color-ink:     #111111;
+  --color-body:    rgba(17,17,17,0.72);
+  --color-surface: #F2F2F2;      /* welcome strip, light sections */
+  --color-bg:      #FFFFFF;
+  --color-border:  #E0E0E0;
+
+  /* ── SHAPE & SHADOW ── */
+  --radius:    0px;
+  --radius-lg: 0px;
+  --shadow:    0 2px 12px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.16);
+
+  /* ── SPACING ── */
+  --space-xs:  8px;
+  --space-sm:  16px;
+  --space-md:  24px;
+  --space-lg:  40px;
+  --space-xl:  64px;
+  --space-2xl: 96px;
+}

@@ -1,0 +1,83 @@
+<!--
+  SNIPPET NAME: "slider"  (a.k.a. infinite-loop multi-slide image slider + lightbox)
+  ===============================================================================
+  What it is:
+    A full-bleed, auto-playing image carousel that shows ~4.5 slides on desktop
+    (1 slide + 10% peek on each side on mobile), loops infinitely in both
+    directions (clones of the first/last N slides are prepended/appended so the
+    loop never visibly "snaps back"), and supports prev/next buttons, dot
+    navigation, autoplay (5s interval), and touch swipe. Clicking any slide
+    opens a companion photo-gallery lightbox with its own slide transition,
+    keyboard nav, and swipe-to-dismiss.
+
+  Used on:
+    - index.html (between the hero/story-canvas and the proof/testimonial
+      sections — a "see the work" visual break)
+
+  Requires (already in shared style.css — search "slider-section" / ".slide"):
+    .slider-section, .slider-viewport, .slider-track, .slide, .slide img,
+    .slider-btn, .slider-prev, .slider-next, .slider-dots, .slider-dot
+    (lightbox: .gallery-lightbox, .gallery-stage, .gallery-nav, etc. — search
+    "gallery-lightbox" in style.css)
+
+  Requires (JS — THIS IS THE IMPORTANT PART):
+    Powered by the "Infinite Loop Multi-slide Slider" IIFE in main.js (search
+    `getElementById('sliderTrack')` — currently ~358 lines including the
+    companion lightbox). To port this section to a new page:
+
+      1. Copy the ENTIRE IIFE from main.js verbatim — from the comment
+         "// ── Infinite Loop Multi-slide Slider ──" through its closing `})();`
+      2. It auto-derives slide count and clones what it needs for the infinite
+         loop — just add/remove `.slide` elements; no constants to edit.
+      3. Keep the element IDs exactly as named (`sliderTrack`, `sliderDots`,
+         `sliderPrev`, `sliderNext`, and the lightbox's `galleryLightbox`,
+         `galleryImage`, `galleryCaption`, `galleryClose`, `galleryPrev`,
+         `galleryNext`) — the script selects them by ID.
+      4. The lightbox markup is a separate block elsewhere on the page (search
+         "gallery-lightbox" in index.html) — copy both the slider AND the
+         lightbox together; the slider's click handler opens the lightbox.
+
+  Placeholders to swap when reusing for a NEW CLIENT SITE:
+    - Each `.slide > img` — src + descriptive, keyword-relevant alt text
+      (these double as the lightbox captions, so make them genuinely
+      descriptive — not just "product photo 1")
+    - Slide count: 8-14 is the sweet spot — enough variety for the loop to
+      feel fresh without bloating page weight. The engine adapts automatically.
+    - `.slider-dots` is populated by the script — no markup needed beyond the
+      empty container
+-->
+
+<!-- ══════════════════════════════════════════
+     INFINITE-LOOP IMAGE SLIDER
+     ══════════════════════════════════════════ -->
+<section class="slider-section">
+  <div class="slider-viewport">
+    <div class="slider-track" id="sliderTrack">
+      <div class="slide"><img src="assets/images/REPLACE-1.jpg" alt="[Descriptive, keyword-relevant alt text — also used as the lightbox caption]" loading="lazy"/></div>
+      <div class="slide"><img src="assets/images/REPLACE-2.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+      <div class="slide"><img src="assets/images/REPLACE-3.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+      <div class="slide"><img src="assets/images/REPLACE-4.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+      <div class="slide"><img src="assets/images/REPLACE-5.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+      <div class="slide"><img src="assets/images/REPLACE-6.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+      <div class="slide"><img src="assets/images/REPLACE-7.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+      <div class="slide"><img src="assets/images/REPLACE-8.jpg" alt="[Descriptive alt text]" loading="lazy"/></div>
+    </div>
+  </div><!-- /slider-viewport -->
+  <button class="slider-btn slider-prev" id="sliderPrev" aria-label="Previous">&#8592;</button>
+  <button class="slider-btn slider-next" id="sliderNext" aria-label="Next">&#8594;</button>
+  <div class="slider-dots" id="sliderDots"></div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     COMPANION PHOTO-GALLERY LIGHTBOX
+     (opens on slide click — copy this alongside the slider)
+     ══════════════════════════════════════════ -->
+<div class="gallery-lightbox" id="galleryLightbox">
+  <button class="gallery-nav gallery-prev" id="galleryPrev" aria-label="Previous image">&#8592;</button>
+  <button class="gallery-nav gallery-next" id="galleryNext" aria-label="Next image">&#8594;</button>
+  <div class="gallery-stage">
+    <button class="gallery-close" id="galleryClose" aria-label="Close gallery">&times;</button>
+    <img class="gallery-image" id="galleryImage" src="" alt=""/>
+    <div class="gallery-caption" id="galleryCaption"></div>
+  </div>
+</div>

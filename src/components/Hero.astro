@@ -1,0 +1,196 @@
+---
+/*
+  Hero — "cone drop" entrance hero
+  ================================
+  This is the Astro-component version of the old `hero-cone` HTML snippet.
+  It is the pattern every other ported snippet should follow:
+
+    - Content comes in as PROPS (no more find/replace on placeholder text —
+      every site/page passes its own real copy)
+    - Styling lives in the scoped <style> block below and reads ONLY from
+      theme tokens (var(--color-..., --space-..., --font-...)) — change the
+      theme, this component re-skins itself, no edits needed
+    - The trigger script lives in the scoped <script> block — it travels
+      with the component, so it can never drift out of sync or get
+      forgotten when copy-pasting into a new page (the old failure mode)
+
+  Usage:
+    <Hero
+      eyebrow="YOUR EYEBROW / LABEL"
+      headline="Your Headline Goes"
+      headlineAccent="Right Here"
+      subcopy="One or two sentences of supporting copy."
+      ctaPrimary={{ label: "Order Now →", href: "/order" }}
+      ctaSecondary={{ label: "▶ See How It Works", href: "#how-it-works" }}
+      trustPoints={["Trust point one", "Trust point two"]}
+      image={{ src: "/images/hero.jpg", alt: "Descriptive alt text" }}
+    />
+*/
+
+interface CTA { label: string; href: string }
+interface ImageProps { src: string; alt: string }
+
+interface Props {
+  eyebrow: string;
+  headline: string;
+  headlineAccent?: string;
+  subcopy: string;
+  ctaPrimary?: CTA;
+  ctaSecondary?: CTA;
+  trustPoints?: string[];
+  image: ImageProps;
+}
+
+const {
+  eyebrow,
+  headline,
+  headlineAccent,
+  subcopy,
+  ctaPrimary,
+  ctaSecondary,
+  trustPoints = [],
+  image,
+} = Astro.props;
+---
+
+<section class="hero" data-hero>
+  <div class="container hero-inner hero-cone">
+    <div class="hero-text">
+      <p class="eyebrow">{eyebrow}</p>
+      <h1>{headline}{headlineAccent && <><br /><span class="accent">{headlineAccent}</span></>}</h1>
+
+      <!-- Mobile-only counterpart — shown only at narrow widths via the
+           media query below, mirrors the desktop image so it never just
+           vanishes on small screens (the bug we hit in the old snippet) -->
+      <div class="hero-media-mobile">
+        <img src={image.src} alt={image.alt} loading="lazy" />
+      </div>
+
+      <p class="subcopy">{subcopy}</p>
+
+      {(ctaPrimary || ctaSecondary) && (
+        <div class="hero-cta">
+          {ctaPrimary && <a href={ctaPrimary.href} class="btn btn-primary">{ctaPrimary.label}</a>}
+          {ctaSecondary && <a href={ctaSecondary.href} class="btn btn-ghost">{ctaSecondary.label}</a>}
+        </div>
+      )}
+
+      {trustPoints.length > 0 && (
+        <div class="hero-trust">
+          {trustPoints.map((t) => <span>✓ {t}</span>)}
+        </div>
+      )}
+    </div>
+
+    <div class="hero-media">
+      <div class="hero-media-frame">
+        <img src={image.src} alt={image.alt} loading="lazy" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { padding: var(--space-2xl) 0; overflow: hidden; }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: var(--space-xl);
+    align-items: center;
+  }
+
+  .eyebrow {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 13px;
+    color: var(--color-accent);
+    margin-bottom: var(--space-xs);
+  }
+
+  h1 { font-size: clamp(34px, 5vw, 56px); }
+  .accent { color: var(--color-brand-dark); }
+
+  .subcopy { font-size: 17px; max-width: 46ch; }
+
+  .hero-cta { display: flex; gap: var(--space-sm); flex-wrap: wrap; margin: var(--space-md) 0; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 14px 28px; border-radius: var(--radius);
+    font-family: var(--font-heading); font-weight: 700; font-size: 15px;
+    text-decoration: none; transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-primary { background: var(--color-brand); color: var(--color-ink); box-shadow: var(--shadow); }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-ghost { background: transparent; color: var(--color-ink); border: 1px solid var(--color-border); }
+  .btn-ghost:hover { border-color: var(--color-ink); }
+
+  .hero-trust { display: flex; gap: var(--space-md); flex-wrap: wrap; font-size: 14px; color: var(--color-body); }
+
+  .hero-media-frame {
+    position: relative; width: 100%; padding-top: 56.25%;
+    border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg);
+  }
+  .hero-media-frame img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  }
+
+  .hero-media-mobile { display: none; }
+
+  /* ── "Cone drop" entrance — the WHOLE hero block arrives as one piece,
+     as if it started high above and behind the viewer's head (the wide
+     apex of an inverted cone) and rushes down that cone toward the screen,
+     converging to its resting size/position right where the cone meets
+     the glass. One unit, one motion — NOT a per-element/per-image effect.
+     Heavy directional blur + oversized scale read as the rush of approach;
+     a "back" easing curve overshoots slightly before settling, and the
+     blur resolves faster than the transform so focus SNAPS in mid-flight
+     just before the final rest. Verbatim port of the live site's
+     `.hero-cone` / `.hero-play` rules — triggered by the script below via
+     `.is-playing` (renamed from `.hero-play` to match this component's
+     scoped-state convention; same effect). ── */
+  /* (overflow: hidden already set on .hero above — clips the oversized starting state) */
+  .hero-cone {
+    opacity: 0;
+    transform-origin: 50% 0%;
+    transform: translateY(-46vh) scale(2.4);
+    filter: blur(34px);
+    transition:
+      opacity   0.3s ease-out,
+      transform 1.05s cubic-bezier(.18,1.5,.32,1),
+      filter    0.42s ease-out;
+  }
+  :global([data-hero].is-playing) .hero-cone {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-cone { opacity: 1; transform: none; filter: none; transition: none; }
+  }
+
+  @media (max-width: 900px) {
+    .hero-inner { grid-template-columns: 1fr; gap: var(--space-md); }
+    .hero-media { display: none; }
+    .hero-media-mobile {
+      display: block;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--radius); overflow: hidden; margin: var(--space-sm) 0;
+    }
+    .hero-media-mobile img { width: 100%; height: 100%; object-fit: cover; }
+  }
+</style>
+
+<script>
+  // Cone-drop trigger — scoped to this component, ships with it everywhere
+  // it's used. No more "remember to copy the IIFE before </body>".
+  document.querySelectorAll<HTMLElement>('[data-hero]').forEach((hero) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        hero.classList.add('is-playing');
+      });
+    });
+  });
+</script>
