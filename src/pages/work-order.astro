@@ -1,0 +1,405 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Work Order Authorization — JetAvenue" description="Submit a work order authorization for mobile private jet maintenance with JetAvenue. FAA-certified technicians, nationwide.">
+
+  <section class="wo-hero">
+    <p class="eyebrow">GET STARTED</p>
+    <h1>Work Order Authorization</h1>
+    <p>Complete this form to authorize service. Required fields are marked with an asterisk (*).</p>
+  </section>
+
+  <section class="wo-body">
+    <div class="wo-container">
+      <form id="wo-form" action="https://formspree.io/f/mjgdrvzg" method="POST" novalidate enctype="multipart/form-data">
+
+        <!-- ── Registration & Serial ── -->
+        <div class="wo-row">
+          <div class="wo-group">
+            <label for="wo-reg">Registration No. <span class="req">*</span></label>
+            <input type="text" id="wo-reg" name="registration_number" placeholder="N12345" required />
+          </div>
+          <div class="wo-group">
+            <label for="wo-serial">Aircraft Serial No. <span class="req">*</span></label>
+            <input type="text" id="wo-serial" name="aircraft_serial" placeholder="e.g. 6050" required />
+          </div>
+        </div>
+
+        <!-- ── Contact Info ── -->
+        <div class="wo-group">
+          <label for="wo-contact">Name of Contact <span class="req">*</span></label>
+          <input type="text" id="wo-contact" name="name" placeholder="Full name" required />
+        </div>
+
+        <div class="wo-group">
+          <label for="wo-company">Company Name</label>
+          <input type="text" id="wo-company" name="company" placeholder="Flight department or operator name" />
+        </div>
+
+        <div class="wo-group">
+          <label>Billing Address <span class="req">*</span></label>
+          <input type="text" name="billing_street" placeholder="Street address" required style="margin-bottom:8px" />
+          <input type="text" name="billing_city_state_zip" placeholder="City, state, zip code, country" required />
+        </div>
+
+        <div class="wo-row">
+          <div class="wo-group">
+            <label for="wo-phone">Phone <span class="req">*</span></label>
+            <input type="tel" id="wo-phone" name="phone" placeholder="(800) 555-0100" required />
+          </div>
+          <div class="wo-group">
+            <label for="wo-fax">Fax</label>
+            <input type="tel" id="wo-fax" name="fax" placeholder="(optional)" />
+          </div>
+        </div>
+
+        <div class="wo-group">
+          <label for="wo-email">Email <span class="req">*</span></label>
+          <input type="email" id="wo-email" name="email" placeholder="you@example.com" required />
+        </div>
+
+        <div class="wo-group">
+          <label for="wo-aircraft-type">Aircraft Type <span class="req">*</span></label>
+          <input type="text" id="wo-aircraft-type" name="aircraft_type" placeholder="e.g. Gulfstream G550" required />
+        </div>
+
+        <div class="wo-group">
+          <label>Flight Operation</label>
+          <div class="wo-radios">
+            <label class="radio-label"><input type="radio" name="flight_operation" value="FAR 91" /> FAR 91</label>
+            <label class="radio-label"><input type="radio" name="flight_operation" value="FAR 135" /> FAR 135</label>
+          </div>
+        </div>
+
+        <!-- ── Aircraft Details (collapsible) ── -->
+        <div class="wo-accordion">
+          <button type="button" class="wo-accordion-btn" id="acToggle">
+            <span>Aircraft Details</span>
+            <svg class="ac-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="wo-accordion-body" id="acBody">
+            <div class="wo-grid-3">
+              <div class="wo-group">
+                <label>Engine Model No.</label>
+                <input type="text" name="engine_model" placeholder="e.g. BR700" />
+              </div>
+              <div class="wo-group">
+                <label>Aircraft Total Time</label>
+                <input type="text" name="aircraft_total_time" placeholder="Hours" />
+              </div>
+              <div class="wo-group">
+                <label>Aircraft Total Landings</label>
+                <input type="text" name="aircraft_total_landings" placeholder="Cycles" />
+              </div>
+            </div>
+            <div class="wo-grid-3">
+              <div class="wo-group"><label>Engine #1 S/N</label><input type="text" name="eng1_sn" /></div>
+              <div class="wo-group"><label>Engine #2 S/N</label><input type="text" name="eng2_sn" /></div>
+              <div class="wo-group"><label>Engine #3 S/N</label><input type="text" name="eng3_sn" /></div>
+            </div>
+            <div class="wo-grid-3">
+              <div class="wo-group"><label>Engine #1 TT</label><input type="text" name="eng1_tt" /></div>
+              <div class="wo-group"><label>Engine #2 TT</label><input type="text" name="eng2_tt" /></div>
+              <div class="wo-group"><label>Engine #3 TT</label><input type="text" name="eng3_tt" /></div>
+            </div>
+            <div class="wo-grid-3">
+              <div class="wo-group"><label>Engine #1 Cycles</label><input type="text" name="eng1_cycles" /></div>
+              <div class="wo-group"><label>Engine #2 Cycles</label><input type="text" name="eng2_cycles" /></div>
+              <div class="wo-group"><label>Engine #3 Cycles</label><input type="text" name="eng3_cycles" /></div>
+            </div>
+            <div class="wo-grid-3">
+              <div class="wo-group"><label>APU Model No.</label><input type="text" name="apu_model" /></div>
+              <div class="wo-group"><label>APU S/N</label><input type="text" name="apu_sn" /></div>
+              <div class="wo-group"><label>APU Total Time</label><input type="text" name="apu_tt" /></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Service Info ── -->
+        <div class="wo-group">
+          <label>Plane Locked? <span class="req">*</span></label>
+          <div class="wo-radios">
+            <label class="radio-label"><input type="radio" name="plane_locked" value="No" checked /> No</label>
+            <label class="radio-label"><input type="radio" name="plane_locked" value="Yes" /> Yes</label>
+          </div>
+        </div>
+
+        <div class="wo-group">
+          <label for="wo-service">Service Required <span class="req">*</span></label>
+          <textarea id="wo-service" name="service_required" rows="4" placeholder="Describe the service needed…" required></textarea>
+        </div>
+
+        <div class="wo-group">
+          <label>Overtime Authorized?</label>
+          <div class="wo-radios">
+            <label class="radio-label"><input type="radio" name="overtime" value="Yes" /> Yes</label>
+            <label class="radio-label"><input type="radio" name="overtime" value="No" checked /> No</label>
+          </div>
+        </div>
+
+        <div class="wo-group">
+          <label>Location of Services (include FBO) <span class="req">*</span></label>
+          <div class="wo-radios wo-radios--wrap">
+            <label class="radio-label"><input type="radio" name="location" value="VNY" required /> VNY — Van Nuys</label>
+            <label class="radio-label"><input type="radio" name="location" value="SDL" /> SDL — Scottsdale</label>
+            <label class="radio-label"><input type="radio" name="location" value="Other" id="locOther" /> Other</label>
+            <input type="text" id="locOtherText" name="location_other" placeholder="Airport / FBO…" class="loc-other-input" disabled />
+          </div>
+        </div>
+
+        <div class="wo-row">
+          <div class="wo-group">
+            <label for="wo-date">Expected Date of Departure <span class="req">*</span></label>
+            <input type="date" id="wo-date" name="expected_departure" required />
+          </div>
+          <div class="wo-group">
+            <label for="wo-po">P.O. #</label>
+            <input type="text" id="wo-po" name="po_number" placeholder="#" />
+          </div>
+        </div>
+
+        <div class="wo-group">
+          <label for="wo-attach">Attach Document</label>
+          <input type="file" id="wo-attach" name="attachment" class="file-input" />
+          <p class="field-note">Accepted: PDF, JPG, PNG — max 10 MB</p>
+        </div>
+
+        <!-- ── Payment & Authorization ── -->
+        <div class="wo-group">
+          <label for="wo-payment">Method of Payment <span class="req">*</span></label>
+          <select id="wo-payment" name="payment_method" required>
+            <option value="">Please choose…</option>
+            <option>Credit Card</option>
+            <option>ACH / Wire Transfer</option>
+            <option>Check</option>
+            <option>Net 30</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="wo-group">
+          <label for="wo-authorized-by">Service Authorized By <span class="req">*</span></label>
+          <input type="text" id="wo-authorized-by" name="authorized_by" placeholder="Full name of authorizing party" required />
+        </div>
+
+        <div class="wo-row">
+          <div class="wo-group">
+            <label for="wo-auth-date">Date <span class="req">*</span></label>
+            <input type="date" id="wo-auth-date" name="authorization_date" required />
+          </div>
+        </div>
+
+        <!-- ── T&C ── -->
+        <div class="wo-tc">
+          <div class="tc-text">
+            <p><strong>JetAvenue Terms & Conditions</strong></p>
+            <p>These terms and conditions accompany the Work Order Authorization. Customer is deemed to accept these Terms and Conditions by submission of this form or by commencement of work. Acceptance supersedes any other conditions, representations, or understandings with respect to this Work Order. JetAvenue LLC reserves the right to halt work if authorization cannot be confirmed.</p>
+          </div>
+          <label class="checkbox-label">
+            <input type="checkbox" name="_terms" id="wo-terms" required />
+            <span>I agree to the Terms and Conditions <span class="req">*</span></span>
+          </label>
+        </div>
+
+        <input type="hidden" name="_replyto" id="wo-replyto" />
+        <input type="hidden" name="_subject" value="New Work Order Authorization — JetAvenue" />
+
+        <button type="submit" class="wo-btn">Submit Work Order →</button>
+        <div class="wo-success" style="display:none;">Your work order has been submitted. We'll confirm within one business day.</div>
+        <div class="wo-error" style="display:none;">Something went wrong. Please email <a href="mailto:mx@jetavenue.net">mx@jetavenue.net</a> directly.</div>
+
+      </form>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  .wo-hero {
+    background: var(--color-surface);
+    text-align: center;
+    padding: var(--space-xl) var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .eyebrow {
+    font-family: var(--font-heading); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.2em; color: var(--color-brand); text-transform: uppercase;
+    margin: 0 0 12px;
+  }
+  .wo-hero h1 {
+    font-family: var(--font-heading); font-size: clamp(28px, 4vw, 46px);
+    font-weight: 800; color: var(--color-ink); margin: 0 0 14px; letter-spacing: -0.02em;
+  }
+  .wo-hero p {
+    font-family: var(--font-body); font-size: 15px; color: var(--color-body);
+    max-width: 480px; margin: 0 auto; line-height: 1.6;
+  }
+
+  .wo-body { padding: 64px 0 96px; }
+  .wo-container { max-width: 780px; margin: 0 auto; padding: 0 var(--space-md); }
+
+  .wo-group { margin-bottom: 20px; }
+  .wo-group label:not(.radio-label):not(.checkbox-label) {
+    display: block; font-family: var(--font-heading); font-size: 11px;
+    font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--color-ink); margin-bottom: 7px;
+  }
+  .req { color: var(--color-brand); }
+
+  .wo-group input[type="text"],
+  .wo-group input[type="tel"],
+  .wo-group input[type="email"],
+  .wo-group input[type="date"],
+  .wo-group select,
+  .wo-group textarea {
+    width: 100%; padding: 11px 14px;
+    border: 1.5px solid var(--color-border); border-radius: 3px;
+    font-family: var(--font-body); font-size: 14px;
+    color: var(--color-ink); background: #fff;
+    transition: border-color 0.15s; outline: none; box-sizing: border-box;
+  }
+  .wo-group input:focus,
+  .wo-group select:focus,
+  .wo-group textarea:focus { border-color: var(--color-brand); }
+  .wo-group textarea { resize: vertical; }
+
+  .wo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .wo-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+
+  .wo-radios { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 4px; }
+  .wo-radios--wrap { gap: 12px 24px; }
+  .radio-label {
+    display: flex; align-items: center; gap: 7px;
+    font-family: var(--font-body); font-size: 14px; color: var(--color-ink);
+    cursor: pointer;
+  }
+  .radio-label input { accent-color: var(--color-brand); width: 15px; height: 15px; }
+
+  .loc-other-input {
+    width: 200px !important; padding: 8px 12px !important;
+    border: 1.5px solid var(--color-border) !important; border-radius: 3px !important;
+    font-family: var(--font-body) !important; font-size: 14px !important;
+  }
+  .loc-other-input:disabled { opacity: 0.4; }
+
+  .file-input {
+    display: block; width: 100%; padding: 10px 0;
+    font-family: var(--font-body); font-size: 14px; color: var(--color-ink);
+    cursor: pointer;
+  }
+  .field-note {
+    font-family: var(--font-body); font-size: 12px; color: var(--color-body);
+    margin: 4px 0 0;
+  }
+
+  /* Accordion */
+  .wo-accordion {
+    border: 1.5px solid var(--color-border); border-radius: 3px;
+    margin-bottom: 20px; overflow: hidden;
+  }
+  .wo-accordion-btn {
+    width: 100%; display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; background: var(--color-surface);
+    border: none; cursor: pointer; font-family: var(--font-heading);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--color-ink);
+  }
+  .wo-accordion-btn:hover { background: #ebebeb; }
+  .ac-icon { width: 18px; height: 18px; stroke: var(--color-body); transition: transform 0.25s; }
+  .wo-accordion.open .ac-icon { transform: rotate(180deg); }
+  .wo-accordion-body {
+    max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+    padding: 0 16px;
+  }
+  .wo-accordion.open .wo-accordion-body { max-height: 800px; padding: 16px; }
+
+  /* T&C */
+  .wo-tc {
+    background: var(--color-surface); border: 1.5px solid var(--color-border);
+    border-radius: 3px; padding: 20px 20px 16px; margin-bottom: 24px;
+  }
+  .wo-tc p {
+    font-family: var(--font-body); font-size: 13px; color: var(--color-body);
+    line-height: 1.65; margin: 0 0 10px;
+  }
+  .wo-tc p strong { color: var(--color-ink); }
+  .checkbox-label {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-family: var(--font-body); font-size: 14px; color: var(--color-ink);
+    cursor: pointer; margin-top: 12px;
+  }
+  .checkbox-label input { accent-color: var(--color-brand); width: 16px; height: 16px; flex: 0 0 16px; margin-top: 2px; }
+
+  .wo-btn {
+    width: 100%; padding: 15px;
+    background: var(--color-brand); color: #fff; border: none; border-radius: 3px;
+    font-family: var(--font-heading); font-size: 15px; font-weight: 700;
+    letter-spacing: 0.04em; cursor: pointer; transition: background 0.18s;
+  }
+  .wo-btn:hover { background: var(--color-brand-dark); }
+  .wo-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .wo-success {
+    margin-top: 16px; padding: 14px 18px;
+    background: #f0fdf4; border: 1px solid #86efac; border-radius: 3px;
+    color: #166534; font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  }
+  .wo-error {
+    margin-top: 16px; padding: 14px 18px;
+    background: #fff5f5; border: 1px solid #fca5a5; border-radius: 3px;
+    color: #991b1b; font-family: var(--font-body); font-size: 14px;
+  }
+  .wo-error a { color: var(--color-brand); }
+
+  @media (max-width: 600px) {
+    .wo-row { grid-template-columns: 1fr; }
+    .wo-grid-3 { grid-template-columns: 1fr 1fr; }
+    .loc-other-input { width: 100% !important; }
+  }
+</style>
+
+<script>
+  // Accordion toggle
+  document.getElementById('acToggle')?.addEventListener('click', () => {
+    document.querySelector('.wo-accordion')?.classList.toggle('open');
+  });
+
+  // "Other" location enables text input
+  document.querySelectorAll('input[name="location"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      const other = document.getElementById('locOtherText') as HTMLInputElement;
+      other.disabled = (radio as HTMLInputElement).value !== 'Other';
+      if (!other.disabled) other.focus();
+    });
+  });
+
+  // Set auth date to today by default
+  const today = new Date().toISOString().split('T')[0];
+  (document.getElementById('wo-auth-date') as HTMLInputElement).value = today;
+
+  // Form submit
+  const form = document.getElementById('wo-form') as HTMLFormElement;
+  form?.addEventListener('submit', (e) => {
+    (document.getElementById('wo-replyto') as HTMLInputElement).value =
+      (document.getElementById('wo-email') as HTMLInputElement).value;
+    e.preventDefault();
+    const btn = form.querySelector('.wo-btn') as HTMLButtonElement;
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    }).then(res => {
+      if (res.ok) {
+        form.reset();
+        (form.querySelector('.wo-success') as HTMLElement).style.display = 'block';
+        (form.querySelector('.wo-error') as HTMLElement).style.display = 'none';
+        btn.style.display = 'none';
+      } else { throw new Error(); }
+    }).catch(() => {
+      (form.querySelector('.wo-error') as HTMLElement).style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Submit Work Order →';
+    });
+  });
+</script>
