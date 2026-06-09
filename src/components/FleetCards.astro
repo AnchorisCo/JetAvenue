@@ -59,27 +59,25 @@ const { items } = Astro.props;
   .fleet-list {
     display: flex; flex-direction: column; gap: 24px;
     text-align: left;
-    perspective: 1200px;
   }
 
-  /* ── Rolodex flip-in animation ── */
+  /* ── Scroll-reveal animation ── */
   .fleet-card {
     display: grid;
     grid-template-columns: 1fr;
     border-radius: 3px; overflow: hidden;
     border: 1.5px solid var(--color-border);
     background: #fff;
-    /* start state: folded over top edge */
     opacity: 0;
-    transform: rotateX(-22deg) translateY(-24px);
+    transform: translateY(48px) scaleY(0.97);
     transform-origin: top center;
     transition:
-      opacity 0.55s ease,
-      transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+      opacity 0.6s ease,
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .fleet-card.is-visible {
     opacity: 1;
-    transform: rotateX(0deg) translateY(0);
+    transform: translateY(0) scaleY(1);
   }
 
   .fleet-img-wrap {
@@ -131,24 +129,19 @@ const { items } = Astro.props;
 </style>
 
 <script>
-  const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-fleet-card]'));
-
   const observer = new IntersectionObserver(
-    (entries) => {
+    (entries, obs) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          const card = entry.target as HTMLElement;
-          const idx = cards.indexOf(card);
-          // stagger: each card waits 80ms more than the previous
-          setTimeout(() => {
-            card.classList.add('is-visible');
-          }, idx * 80);
-          observer.unobserve(card);
+          entry.target.classList.add('is-visible');
+          obs.unobserve(entry.target);
         }
       });
     },
-    { threshold: 0.12 }
+    { threshold: 0.08, rootMargin: '0px 0px -60px 0px' }
   );
 
-  cards.forEach((card) => observer.observe(card));
+  document.querySelectorAll('[data-fleet-card]').forEach((card) => {
+    observer.observe(card);
+  });
 </script>
