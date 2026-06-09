@@ -61,7 +61,7 @@ const { items } = Astro.props;
     text-align: left;
   }
 
-  /* ── Cone-drop entrance (ported from NetSnapz hero) ── */
+  /* ── Swoosh in from sides ── */
   .fleet-card {
     display: grid;
     grid-template-columns: 1fr;
@@ -69,21 +69,20 @@ const { items } = Astro.props;
     border: 1.5px solid var(--color-border);
     background: #fff;
     opacity: 0;
-    transform-origin: 50% 0%;
-    transform: translateY(-40px) scale(1.04);
-    filter: blur(18px);
+    transform: translateX(-110vw);
     transition:
-      opacity   0.35s ease-out,
-      transform 0.95s cubic-bezier(.18, 1.5, .32, 1),
-      filter    0.4s ease-out;
+      opacity 0.7s ease,
+      transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .fleet-card--reverse {
+    transform: translateX(110vw);
   }
   .fleet-card.is-visible {
     opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
+    transform: translateX(0);
   }
   @media (prefers-reduced-motion: reduce) {
-    .fleet-card { opacity: 1; transform: none; filter: none; transition: none; }
+    .fleet-card { opacity: 1; transform: none; transition: none; }
   }
 
   .fleet-img-wrap {
