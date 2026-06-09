@@ -148,8 +148,9 @@ const { slides } = Astro.props;
     }
 
     .slide-content {
-      position: absolute; bottom: 60px; left: 56px;
-      max-width: 480px;
+      position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+      max-width: 560px; width: 100%; text-align: center;
+      display: flex; flex-direction: column; align-items: center;
     }
     .slide-title {
       font-family: var(--font-heading); font-size: 36px; font-weight: 700;
