@@ -10,35 +10,35 @@ const fleetItems = [
     name: 'Gulfstream',
     models: 'GIV · G450 · GV · G550 · G650 · G500 · G600',
     img: '/images/fleet/gulfstream-logo.svg',
-    imgAlt: 'Gulfstream private jet on the ramp',
+    imgAlt: 'Gulfstream G650 private jet on the ramp — JetAvenue mobile maintenance',
     logo: '/images/fleet/gulfstream-logo.svg',
   },
   {
     name: 'Bombardier',
     models: 'Challenger 300 · 350 · 3500 · 604 · 605 · 650 · Global Express · XRS · 5000 · 6000 · 7500 · CRJ 800',
     img: '/images/fleet/bombardier-logo.svg',
-    imgAlt: 'Bombardier Challenger private jet',
+    imgAlt: 'Bombardier Challenger 650 private jet — JetAvenue certified maintenance',
     logo: '/images/fleet/bombardier-logo.svg',
   },
   {
     name: 'Dassault',
     models: 'DA50 · Falcon 900 · 2000 · 2000 EX EASY · 7X',
     img: '/images/fleet/dassault-logo.svg',
-    imgAlt: 'Dassault Falcon private jet',
+    imgAlt: 'Dassault Falcon 7X private jet — mobile avionics and interior repair',
     logo: '/images/fleet/dassault-logo.svg',
   },
   {
     name: 'Embraer',
     models: 'ERJ135 · ERJ145 · Legacy 600 · Legacy 650 · E-Jet 190',
     img: '/images/fleet/embraer-logo.svg',
-    imgAlt: 'Embraer Legacy private jet',
+    imgAlt: 'Embraer Legacy 650 private jet — mobile line maintenance by JetAvenue',
     logo: '/images/fleet/embraer-logo.svg',
   },
   {
     name: 'Cessna',
     models: 'Citation 560XL · 560XLS · CIT X · 680 · 680A',
     img: '/images/fleet/cessna-logo.svg',
-    imgAlt: 'Cessna Citation private jet',
+    imgAlt: 'Cessna Citation CJ private jet — scheduled maintenance and interior cleaning',
     logo: '/images/fleet/cessna-logo.svg',
   },
 ];
@@ -74,31 +74,44 @@ const slides = [
   {
     title: 'Line & Scheduled Maintenance',
     sub: '24/7 on-call aircraft support to keep operations moving',
-    href: '/#line-maintenance',
+    href: '/services#line-maintenance',
     img: '/images/heros/home-hero-1.jpg',
-    imgAlt: 'Private jet on the ramp',
+    imgAlt: 'FAA-certified technician performing line maintenance on a private jet at the ramp',
     panelColor: '#3A5A8C',
   },
   {
     title: 'Interior Cleaning & Repair',
     sub: 'On-site cabin interior repairs without downtime',
-    href: '/#interior',
+    href: '/services#interior',
     img: '/images/heros/home-hero-2.webp',
-    imgAlt: 'Technician repairing leather seating in private jet cabin',
+    imgAlt: 'JetAvenue technician repairing leather seating in a private jet cabin — mobile interior repair',
     panelColor: '#8B6842',
   },
   {
     title: 'Avionics Support',
     sub: 'Troubleshoot, diagnose and maintain critical flight systems',
-    href: '/#avionics',
+    href: '/services#avionics',
     img: '/images/heros/home-hero-3.webp',
-    imgAlt: 'Avionics panel in a private jet cockpit',
+    imgAlt: 'Avionics panel in a private jet cockpit — JetAvenue avionics diagnostics and support',
     panelColor: '#2A3A52',
   },
 ];
 ---
 
-<BaseLayout title="JetAvenue — Mobile Private Jet Maintenance" description="Professional, quality, reliable mobile aircraft maintenance. We come to you — Los Angeles, Arizona, and nationwide.">
+<BaseLayout
+  title="JetAvenue — Mobile Private Jet Maintenance & Repair"
+  description="FAA-certified mobile jet maintenance — line & scheduled MX, interior repair, avionics support. We travel to your aircraft at VNY, SDL, or anywhere in the US."
+  canonicalPath="/"
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems.map(f => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  }}
+>
 
   <div class="welcome-strip">
     <span>WELCOME TO JET AVENUE</span>

@@ -37,3 +37,14 @@ img, svg { display: block; max-width: 100%; }
   margin: 0 auto;
   padding: 0 var(--space-md);
 }
+
+.btn-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+a[class*="btn"] {
+  font-weight: 700;
+}

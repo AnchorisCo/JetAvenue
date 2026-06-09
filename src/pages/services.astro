@@ -8,35 +8,35 @@ const fleetItems = [
     name: 'Gulfstream',
     models: 'GIV · G450 · GV · G550 · G650 · G500 · G600',
     img: '/images/fleet/gulfstream-logo.svg',
-    imgAlt: 'Gulfstream private jet on the ramp',
+    imgAlt: 'Gulfstream G650 private jet — JetAvenue mobile line maintenance and interior repair',
     logo: '/images/fleet/gulfstream-logo.svg',
   },
   {
     name: 'Bombardier',
     models: 'Challenger 300 · 350 · 3500 · 604 · 605 · 650 · Global Express · XRS · 5000 · 6000 · 7500 · CRJ 800',
     img: '/images/fleet/bombardier-logo.svg',
-    imgAlt: 'Bombardier Challenger private jet',
+    imgAlt: 'Bombardier Challenger 650 private jet — mobile avionics and MX support by JetAvenue',
     logo: '/images/fleet/bombardier-logo.svg',
   },
   {
     name: 'Dassault',
     models: 'DA50 · Falcon 900 · 2000 · 2000 EX EASY · 7X',
     img: '/images/fleet/dassault-logo.svg',
-    imgAlt: 'Dassault Falcon private jet',
+    imgAlt: 'Dassault Falcon 7X private jet — mobile interior repair and avionics by JetAvenue',
     logo: '/images/fleet/dassault-logo.svg',
   },
   {
     name: 'Embraer',
     models: 'ERJ135 · ERJ145 · Legacy 600 · Legacy 650 · E-Jet 190',
     img: '/images/fleet/embraer-logo.svg',
-    imgAlt: 'Embraer Legacy private jet',
+    imgAlt: 'Embraer Legacy 650 private jet — scheduled maintenance by FAA-certified JetAvenue technicians',
     logo: '/images/fleet/embraer-logo.svg',
   },
   {
     name: 'Cessna',
     models: 'Citation 560XL · 560XLS · CIT X · 680 · 680A',
     img: '/images/fleet/cessna-logo.svg',
-    imgAlt: 'Cessna Citation private jet',
+    imgAlt: 'Cessna Citation CJ private jet — mobile line MX and cleaning by JetAvenue',
     logo: '/images/fleet/cessna-logo.svg',
   },
 ];
@@ -86,7 +86,21 @@ const services = [
 ];
 ---
 
-<BaseLayout title="Services — JetAvenue" description="JetAvenue provides line maintenance, mobile interior repair & cleaning, and avionics support for private jets — at your aircraft, nationwide.">
+<BaseLayout
+  title="Private Jet Maintenance Services — JetAvenue"
+  description="Mobile line maintenance, interior repair & cleaning, and avionics support for private jets. FAA-certified technicians come to your aircraft — VNY, SDL, and nationwide."
+  canonicalPath="/services"
+  jsonLd={services.map(s => ({
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    serviceType: s.eyebrow,
+    name: s.title,
+    description: s.description,
+    provider: { '@type': 'LocalBusiness', name: 'JetAvenue', url: 'https://jetavenue.net' },
+    areaServed: { '@type': 'Country', name: 'United States' },
+    url: `https://jetavenue.net/services#${s.id}`,
+  }))}
+>
 
   <!-- Hero -->
   <section class="svc-hero">
@@ -115,7 +129,7 @@ const services = [
             <ul class="svc-bullets">
               {s.bullets.map(b => <li>{b}</li>)}
             </ul>
-            <div class="svc-btns">
+            <div class="svc-btns btn-row">
               <a href="/contact" class="btn-outline" style={`--c:${s.color}`}>Get in Touch</a>
               <a href="/work-order" class="btn-solid" style={`background:${s.color}`}>Submit Work Order →</a>
             </div>
@@ -237,7 +251,7 @@ const services = [
   }
 
   .svc-btns {
-    display: flex; gap: 12px; flex-wrap: wrap; padding-top: 4px;
+    padding-top: 4px;
   }
   .btn-outline {
     display: inline-block; padding: 11px 22px;
@@ -250,7 +264,7 @@ const services = [
   .btn-outline:hover { background: var(--c, var(--color-brand)); color: #fff; }
   .btn-solid {
     display: inline-block; padding: 11px 22px;
-    color: #fff; border-radius: 3px;
+    color: #fff; border: 2px solid transparent; border-radius: 3px;
     font-family: var(--font-heading); font-size: 13px; font-weight: 700;
     letter-spacing: 0.04em; text-decoration: none;
     transition: opacity 0.18s;

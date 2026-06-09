@@ -24,7 +24,7 @@ const {
   <div class="cta-inner">
     <h2>{heading}</h2>
     <p>{subhead}</p>
-    <div class="cta-buttons">
+    <div class="cta-buttons btn-row">
       <a href={secondaryHref} class="cta-btn-outline">{secondaryLabel}</a>
       <a href={primaryHref} class="cta-btn-primary">{primaryLabel}</a>
     </div>
@@ -58,11 +58,7 @@ const {
     line-height: 1.6;
   }
   .cta-buttons {
-    display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
     margin-bottom: 20px;
   }
   .cta-btn-primary {
@@ -70,6 +66,7 @@ const {
     padding: 13px 28px;
     background: var(--color-brand);
     color: #fff;
+    border: 2px solid transparent;
     border-radius: 3px;
     font-family: var(--font-heading);
     font-size: 14px;
