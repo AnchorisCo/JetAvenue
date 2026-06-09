@@ -132,15 +132,14 @@ const { items } = Astro.props;
 
 <script>
   const observer = new IntersectionObserver(
-    (entries, obs) => {
+    (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('is-visible');
-          obs.unobserve(entry.target);
         }
       });
     },
-    { threshold: 0.08, rootMargin: '0px 0px -60px 0px' }
+    { threshold: 0.05 }
   );
 
   document.querySelectorAll('[data-fleet-card]').forEach((card) => {
