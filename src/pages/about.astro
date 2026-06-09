@@ -1,5 +1,39 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import FleetCards from '../components/FleetCards.astro';
+
+const fleetItems = [
+  {
+    name: 'Gulfstream',
+    models: 'GIV · G450 · GV · G550 · G650 · G500 · G600',
+    img: '/images/fleet/gulfstream.jpg',
+    imgAlt: 'Gulfstream private jet on the ramp',
+  },
+  {
+    name: 'Bombardier',
+    models: 'Challenger 300 · 350 · 3500 · 604 · 605 · 650 · Global Express · XRS · 5000 · 6000 · 7500 · CRJ 800',
+    img: '/images/fleet/bombardier.jpg',
+    imgAlt: 'Bombardier Challenger private jet',
+  },
+  {
+    name: 'Dassault',
+    models: 'DA50 · Falcon 900 · 2000 · 2000 EX EASY · 7X',
+    img: '/images/fleet/dassault.jpg',
+    imgAlt: 'Dassault Falcon private jet',
+  },
+  {
+    name: 'Embraer',
+    models: 'ERJ135 · ERJ145 · Legacy 600 · Legacy 650 · E-Jet 190',
+    img: '/images/fleet/embraer.jpg',
+    imgAlt: 'Embraer Legacy private jet',
+  },
+  {
+    name: 'Cessna',
+    models: 'Citation 560XL · 560XLS · CIT X · 680 · 680A',
+    img: '/images/fleet/cessna.jpg',
+    imgAlt: 'Cessna Citation private jet',
+  },
+];
 ---
 
 <BaseLayout title="About — JetAvenue" description="JetAvenue is a mobile private jet maintenance company with 200+ years of combined experience. FAA-certified technicians travel to your aircraft — nationwide.">
@@ -83,34 +117,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   </section>
 
   <!-- Fleets -->
-  <section class="about-section">
-    <div class="about-container">
-      <p class="eyebrow" style="text-align:center">FLEET COVERAGE</p>
-      <h2 style="text-align:center">Airframes We Support</h2>
-      <div class="fleet-grid">
-        <div class="fleet-card">
-          <h4>Gulfstream</h4>
-          <p>GIV · G450 · GV · G550 · G650 · G500 · G600</p>
-        </div>
-        <div class="fleet-card">
-          <h4>Bombardier</h4>
-          <p>Challenger 300 · 350 · 3500 · 604 · 605 · 650 · Global Express · XRS · 5000 · 6000 · 7500 · CRJ 800</p>
-        </div>
-        <div class="fleet-card">
-          <h4>Dassault</h4>
-          <p>DA50 · Falcon 900 · 2000 · 2000 EX EASY · 7X</p>
-        </div>
-        <div class="fleet-card">
-          <h4>Embraer</h4>
-          <p>ERJ135 · ERJ145 · Legacy 600 · Legacy 650 · E-Jet 190</p>
-        </div>
-        <div class="fleet-card">
-          <h4>Cessna</h4>
-          <p>Citation 560XL · 560XLS · CIT X · 680 · 680A</p>
-        </div>
-      </div>
-    </div>
-  </section>
+  <FleetCards items={fleetItems} />
 
   <!-- Locations -->
   <section class="about-section about-section--alt">

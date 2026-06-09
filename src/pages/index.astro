@@ -2,6 +2,40 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ServiceSlider from '../components/ServiceSlider.astro';
 import FAQ from '../components/FAQ.astro';
+import FleetCards from '../components/FleetCards.astro';
+
+const fleetItems = [
+  {
+    name: 'Gulfstream',
+    models: 'GIV · G450 · GV · G550 · G650 · G500 · G600',
+    img: '/images/fleet/gulfstream.jpg',
+    imgAlt: 'Gulfstream private jet on the ramp',
+  },
+  {
+    name: 'Bombardier',
+    models: 'Challenger 300 · 350 · 3500 · 604 · 605 · 650 · Global Express · XRS · 5000 · 6000 · 7500 · CRJ 800',
+    img: '/images/fleet/bombardier.jpg',
+    imgAlt: 'Bombardier Challenger private jet',
+  },
+  {
+    name: 'Dassault',
+    models: 'DA50 · Falcon 900 · 2000 · 2000 EX EASY · 7X',
+    img: '/images/fleet/dassault.jpg',
+    imgAlt: 'Dassault Falcon private jet',
+  },
+  {
+    name: 'Embraer',
+    models: 'ERJ135 · ERJ145 · Legacy 600 · Legacy 650 · E-Jet 190',
+    img: '/images/fleet/embraer.jpg',
+    imgAlt: 'Embraer Legacy private jet',
+  },
+  {
+    name: 'Cessna',
+    models: 'Citation 560XL · 560XLS · CIT X · 680 · 680A',
+    img: '/images/fleet/cessna.jpg',
+    imgAlt: 'Cessna Citation private jet',
+  },
+];
 
 const faqItems = [
   {
@@ -65,6 +99,7 @@ const slides = [
   </div>
 
   <ServiceSlider slides={slides} />
+  <FleetCards items={fleetItems} />
   <FAQ items={faqItems} />
 
 </BaseLayout>
