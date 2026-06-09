@@ -21,7 +21,7 @@ const { items } = Astro.props;
 
     <div class="fleet-list">
       {items.map((item, i) => (
-        <div class={`fleet-card${i % 2 === 1 ? ' fleet-card--reverse' : ''}`}>
+        <div class={`fleet-card${i % 2 === 1 ? ' fleet-card--reverse' : ''}`} data-fleet-card>
           <div class="fleet-img-wrap">
             <img src={item.img} alt={item.imgAlt} loading="lazy" class={item.img === item.logo ? 'is-logo' : ''} />
           </div>
@@ -43,6 +43,7 @@ const { items } = Astro.props;
   }
   .fleet-container {
     max-width: 1080px; margin: 0 auto; padding: 0 var(--space-md);
+    text-align: center;
   }
   .eyebrow {
     font-family: var(--font-heading); font-size: 11px; font-weight: 700;
@@ -55,14 +56,30 @@ const { items } = Astro.props;
     letter-spacing: -0.02em;
   }
 
-  .fleet-list { display: flex; flex-direction: column; gap: 24px; }
+  .fleet-list {
+    display: flex; flex-direction: column; gap: 24px;
+    text-align: left;
+    perspective: 1200px;
+  }
 
+  /* ── Rolodex flip-in animation ── */
   .fleet-card {
     display: grid;
     grid-template-columns: 1fr;
     border-radius: 3px; overflow: hidden;
     border: 1.5px solid var(--color-border);
     background: #fff;
+    /* start state: folded over top edge */
+    opacity: 0;
+    transform: rotateX(-22deg) translateY(-24px);
+    transform-origin: top center;
+    transition:
+      opacity 0.55s ease,
+      transform 0.55s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .fleet-card.is-visible {
+    opacity: 1;
+    transform: rotateX(0deg) translateY(0);
   }
 
   .fleet-img-wrap {
@@ -112,3 +129,26 @@ const { items } = Astro.props;
     .fleet-img-wrap { min-height: 320px; }
   }
 </style>
+
+<script>
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-fleet-card]'));
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const card = entry.target as HTMLElement;
+          const idx = cards.indexOf(card);
+          // stagger: each card waits 80ms more than the previous
+          setTimeout(() => {
+            card.classList.add('is-visible');
+          }, idx * 80);
+          observer.unobserve(card);
+        }
+      });
+    },
+    { threshold: 0.12 }
+  );
+
+  cards.forEach((card) => observer.observe(card));
+</script>
