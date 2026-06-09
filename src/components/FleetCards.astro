@@ -26,7 +26,6 @@ const { items } = Astro.props;
             <img src={item.img} alt={item.imgAlt} loading="lazy" class={item.img === item.logo ? 'is-logo' : ''} />
           </div>
           <div class="fleet-info">
-            {item.logo && <img src={item.logo} alt={`${item.name} logo`} class="fleet-logo" />}
             <h3>{item.name}</h3>
             <p class="fleet-models">{item.models}</p>
           </div>
@@ -76,7 +75,9 @@ const { items } = Astro.props;
     transition: transform 0.4s ease;
   }
   .fleet-img-wrap img.is-logo {
-    width: 55%; height: auto; object-fit: contain;
+    width: auto; height: auto;
+    max-width: 50%; max-height: 60px;
+    object-fit: contain;
     opacity: 0.35; filter: grayscale(1);
   }
   .fleet-card:hover .fleet-img-wrap img:not(.is-logo) { transform: scale(1.03); }
@@ -84,10 +85,6 @@ const { items } = Astro.props;
   .fleet-info {
     padding: 28px 28px 32px;
     display: flex; flex-direction: column; justify-content: center;
-  }
-  .fleet-logo {
-    height: 28px; width: auto; display: block; margin-bottom: 16px;
-    opacity: 0.75; filter: grayscale(1);
   }
   .fleet-info h3 {
     font-family: var(--font-heading); font-size: 22px; font-weight: 800;
