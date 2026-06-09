@@ -143,7 +143,7 @@ const { items } = Astro.props;
         }
       });
     },
-    { threshold: 0.05 }
+    { threshold: 0, rootMargin: '0px 0px -55% 0px' }
   );
 
   document.querySelectorAll('[data-fleet-card]').forEach((card) => {
