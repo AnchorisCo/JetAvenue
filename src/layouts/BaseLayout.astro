@@ -32,6 +32,7 @@ interface Props {
   ogImage?: string;
   canonicalPath?: string;
   jsonLd?: object | object[];
+  noindex?: boolean;
 }
 
 const {
@@ -40,6 +41,7 @@ const {
   ogImage = '/images/logos/jetavenue-OG.png',
   canonicalPath,
   jsonLd,
+  noindex = false,
 } = Astro.props;
 
 const siteUrl = 'https://jetavenue.net';
@@ -121,7 +123,7 @@ const footerSocial = {
     <title>{title}</title>
     <meta name="description" content={description} />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />

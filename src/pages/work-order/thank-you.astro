@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Work Authorization Received — JetAvenue"
+  description="Your work authorization has been received. JetAvenue will review the details and confirm next steps shortly."
+  canonicalPath="/work-order/thank-you"
+  noindex={true}
+>
+
+  <section class="ty">
+    <div class="ty-inner">
+      <div class="ty-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+
+      <p class="eyebrow">Work Authorization Received</p>
+      <h1>Thank you — we've got it.</h1>
+      <p class="ty-lead">
+        Your work authorization has been submitted to JetAvenue. A member of our team
+        will review the details and reach out to confirm scheduling and next steps,
+        typically within one business day.
+      </p>
+      <p class="ty-sub">
+        Need to reach us sooner? Call
+        <a href="tel:+18444805387">(844) 480-5387</a>
+        or email
+        <a href="mailto:mx@jetavenue.net">mx@jetavenue.net</a>.
+      </p>
+
+      <div class="ty-actions">
+        <a href="/services" class="ty-btn ty-btn--ghost">View Services</a>
+        <a href="/" class="ty-btn ty-btn--solid">Back to Home</a>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
+
+<style>
+  .ty {
+    background: var(--color-surface);
+    min-height: 62vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl) var(--space-md);
+  }
+  .ty-inner {
+    max-width: 560px;
+    text-align: center;
+  }
+
+  .ty-badge {
+    width: 72px; height: 72px;
+    margin: 0 auto var(--space-md);
+    border-radius: 50%;
+    background: var(--color-brand);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ty-badge svg { width: 36px; height: 36px; color: #fff; }
+
+  .eyebrow {
+    font-family: var(--font-heading); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.2em; color: var(--color-brand); text-transform: uppercase;
+    margin: 0 0 12px;
+  }
+  .ty h1 {
+    font-family: var(--font-heading); font-size: clamp(28px, 4vw, 44px);
+    font-weight: 800; color: var(--color-ink); margin: 0 0 16px; letter-spacing: -0.02em;
+  }
+  .ty-lead {
+    font-family: var(--font-body); font-size: 16px; color: var(--color-body);
+    line-height: 1.65; margin: 0 auto 18px; max-width: 480px;
+  }
+  .ty-sub {
+    font-family: var(--font-body); font-size: 14px; color: var(--color-body);
+    line-height: 1.6; margin: 0 0 var(--space-lg);
+  }
+  .ty-sub a { color: var(--color-brand); font-weight: 600; text-decoration: none; }
+  .ty-sub a:hover { text-decoration: underline; }
+
+  .ty-actions {
+    display: flex; align-items: center; justify-content: center;
+    gap: 14px; flex-wrap: wrap;
+  }
+  .ty-btn {
+    display: inline-block; padding: 13px 26px; border-radius: 3px;
+    font-family: var(--font-heading); font-size: 13px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; text-decoration: none;
+    transition: background 0.18s, color 0.18s;
+  }
+  .ty-btn--solid {
+    background: var(--color-brand); color: #fff;
+    border: 1.5px solid var(--color-brand);
+  }
+  .ty-btn--solid:hover { background: var(--color-brand-dark); border-color: var(--color-brand-dark); }
+  .ty-btn--ghost {
+    background: transparent; color: var(--color-ink);
+    border: 1.5px solid var(--color-border);
+  }
+  .ty-btn--ghost:hover { border-color: var(--color-ink); }
+
+  @media (max-width: 480px) {
+    .ty-actions { flex-direction: column; }
+    .ty-btn { width: 100%; }
+  }
+</style>

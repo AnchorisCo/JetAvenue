@@ -16,7 +16,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   <section class="wo-body">
     <div class="wo-container">
-      <form id="wo-form" action="https://formspree.io/f/mjgdrvzg" method="POST" novalidate enctype="multipart/form-data">
+      <form id="wo-form" action="https://www.recoilmedia.com/api/forms/work-order" method="POST" novalidate enctype="multipart/form-data">
+
+        <!-- Routing (which brand) + honeypot spam trap -->
+        <input type="hidden" name="brand" value="jetavenue.net" />
+        <input type="text" class="wo-hp" name="company_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
         <!-- ── Registration & Serial ── -->
         <div class="wo-row">
@@ -44,7 +48,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div class="wo-group">
           <label>Billing Address <span class="req">*</span></label>
           <input type="text" name="billing_street" placeholder="Street address" required style="margin-bottom:8px" />
-          <input type="text" name="billing_city_state_zip" placeholder="City, state, zip code, country" required />
+          <div class="wo-grid-csz">
+            <input type="text" name="billing_city" placeholder="City" required />
+            <input type="text" name="billing_state" placeholder="State" required />
+            <input type="text" name="billing_zip" placeholder="Zip code" required />
+          </div>
         </div>
 
         <div class="wo-row">
@@ -220,42 +228,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </select>
         </div>
 
-        <!-- Credit Card fields -->
-        <div id="pay-cc" class="pay-fields" style="display:none">
-          <div class="wo-cc-row">
-            <div class="wo-group wo-cc-num">
-              <label for="cc-number">Card Number <span class="req">*</span></label>
-              <input type="text" id="cc-number" name="cc_number" placeholder="•••• •••• •••• ••••" maxlength="19" />
-            </div>
-            <div class="wo-group wo-cc-exp">
-              <label for="cc-exp">Expiration <span class="req">*</span></label>
-              <input type="text" id="cc-exp" name="cc_expiration" placeholder="MM / YY" maxlength="7" />
-            </div>
-            <div class="wo-group wo-cc-cvv">
-              <label for="cc-cvv">CVV <span class="req">*</span></label>
-              <input type="text" id="cc-cvv" name="cc_cvv" placeholder="•••" maxlength="4" autocomplete="off" inputmode="numeric" />
-            </div>
-          </div>
-        </div>
-
-        <!-- Bank / ACH fields -->
-        <div id="pay-ach" class="pay-fields" style="display:none">
-          <div class="wo-ach-row">
-            <div class="wo-group wo-ach-bank">
-              <label for="ach-bank">Bank Name <span class="req">*</span></label>
-              <input type="text" id="ach-bank" name="ach_bank_name" placeholder="e.g. Chase, Wells Fargo" />
-            </div>
-            <div class="wo-group wo-ach-routing">
-              <label for="ach-routing">Routing Number <span class="req">*</span></label>
-              <input type="text" id="ach-routing" name="ach_routing_number" placeholder="9-digit routing #" maxlength="9" />
-            </div>
-            <div class="wo-group wo-ach-account">
-              <label for="ach-account">Account Number <span class="req">*</span></label>
-              <input type="text" id="ach-account" name="ach_account_number" placeholder="Account #" />
-            </div>
-          </div>
-        </div>
-        <!-- COD: no fields -->
+        <p class="pay-note">For your security, do not enter card or bank account numbers on this form. Jet Avenue will follow up to arrange payment.</p>
 
         <div class="wo-group">
           <label for="wo-authorized-by">Service Authorized By <span class="req">*</span></label>
@@ -336,17 +309,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
           </div>
           <label class="checkbox-label" id="tc-check-label">
-            <input type="checkbox" name="_terms" id="wo-terms" required disabled />
+            <input type="checkbox" name="terms_agreed" id="wo-terms" required disabled />
             <span>I have read and agree to the Terms and Conditions <span class="req">*</span></span>
           </label>
         </div>
 
-        <input type="hidden" name="_replyto" id="wo-replyto" />
-        <input type="hidden" name="_subject" value="New Work Authorization: JetAvenue" />
-
         <button type="submit" class="wo-btn">Submit Work Authorization →</button>
-        <div class="wo-success" style="display:none;">Your work authorization has been submitted. We'll confirm within one business day.</div>
-        <div class="wo-error" style="display:none;">Something went wrong. Please email <a href="mailto:mx@jetavenue.net">mx@jetavenue.net</a> directly.</div>
 
       </form>
     </div>
@@ -405,9 +373,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .wo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-  .wo-cc-row { display: grid; grid-template-columns: 2fr 1fr 80px; gap: 12px; }
-  .wo-ach-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
   .wo-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+  .wo-grid-csz { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; }
+
+  /* Honeypot — visually hidden, off-screen, not announced to AT */
+  .wo-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
+
+  .pay-note {
+    font-family: var(--font-body); font-size: 12.5px; color: var(--color-body);
+    margin: -8px 0 0; line-height: 1.5;
+  }
 
   .wo-radios { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 4px; }
   .wo-radios--wrap { gap: 12px 24px; }
@@ -555,24 +530,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .wo-btn:hover { background: var(--color-brand-dark); }
   .wo-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-  .wo-success {
-    margin-top: 16px; padding: 14px 18px;
-    background: #f0fdf4; border: 1px solid #86efac; border-radius: 3px;
-    color: #166534; font-family: var(--font-body); font-size: 14px; font-weight: 600;
-  }
-  .wo-error {
-    margin-top: 16px; padding: 14px 18px;
-    background: #fff5f5; border: 1px solid #fca5a5; border-radius: 3px;
-    color: #991b1b; font-family: var(--font-body); font-size: 14px;
-  }
-  .wo-error a { color: var(--color-brand); }
-
   @media (max-width: 600px) {
     .wo-row { grid-template-columns: 1fr; }
     .wo-grid-3 { grid-template-columns: 1fr 1fr; }
-    .wo-cc-row { grid-template-columns: 1fr 1fr; }
-    .wo-cc-cvv { grid-column: 1 / -1; max-width: 120px; }
-    .wo-ach-row { grid-template-columns: 1fr; }
+    .wo-grid-csz { grid-template-columns: 1fr; }
     .upload-zones { grid-template-columns: 1fr; }
     .loc-other-input { width: 100% !important; }
   }
@@ -597,7 +558,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   const tcScroll = document.getElementById('tc-scroll');
   const tcCheckbox = document.getElementById('wo-terms') as HTMLInputElement;
   const tcHint = document.getElementById('tc-hint');
-  const woBtn = document.querySelector('.wo-btn') as HTMLButtonElement;
 
   tcScroll?.addEventListener('scroll', () => {
     const atBottom = tcScroll.scrollTop + tcScroll.clientHeight >= tcScroll.scrollHeight - 8;
@@ -605,13 +565,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       tcCheckbox.disabled = false;
       if (tcHint) { tcHint.textContent = 'Please check the box below to confirm agreement.'; tcHint.classList.add('done'); }
     }
-  });
-
-  // Payment method — show/hide fields
-  document.getElementById('wo-payment')?.addEventListener('change', (e) => {
-    const val = (e.target as HTMLSelectElement).value;
-    document.getElementById('pay-cc')!.style.display  = val === 'Credit Card' ? 'block' : 'none';
-    document.getElementById('pay-ach')!.style.display = val === 'Bank/ACH'    ? 'block' : 'none';
   });
 
   // File upload zones with add/remove
@@ -664,28 +617,69 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   const today = new Date().toISOString().split('T')[0];
   (document.getElementById('wo-auth-date') as HTMLInputElement).value = today;
 
-  // Form submit
+  // ── Submit: compress photos client-side, then native POST so the endpoint's
+  //    303 redirect to the thank-you page works (a cross-origin fetch would be
+  //    blocked by CORS). Photos are resized to keep the request under Vercel's
+  //    ~4.5 MB ingress cap; SOW / PO files pass through untouched. ──
+  const MAX_DIM = 1600;
+  const JPEG_Q = 0.7;
+
+  function compressImage(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let width = img.naturalWidth, height = img.naturalHeight;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width >= height) { height = Math.round((height * MAX_DIM) / width); width = MAX_DIM; }
+          else { width = Math.round((width * MAX_DIM) / height); height = MAX_DIM; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { reject(new Error('no-2d-context')); return; }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (!blob) { reject(new Error('toBlob-failed')); return; }
+          const name = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+          resolve(new File([blob], name, { type: 'image/jpeg', lastModified: Date.now() }));
+        }, 'image/jpeg', JPEG_Q);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('img-load-failed')); };
+      img.src = url;
+    });
+  }
+
+  async function compressPhotos(input: HTMLInputElement | null) {
+    if (!input?.files?.length) return;
+    const dt = new DataTransfer();
+    for (const file of Array.from(input.files)) {
+      if (!file.type.startsWith('image/')) { dt.items.add(file); continue; }
+      try { dt.items.add(await compressImage(file)); }
+      catch { dt.items.add(file); } // keep the original if it can't be re-encoded
+    }
+    input.files = dt.files;
+  }
+
   const form = document.getElementById('wo-form') as HTMLFormElement;
-  form?.addEventListener('submit', (e) => {
-    (document.getElementById('wo-replyto') as HTMLInputElement).value =
-      (document.getElementById('wo-email') as HTMLInputElement).value;
+  const photosInput = document.getElementById('upload-pics') as HTMLInputElement;
+
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    // Terms gate: the checkbox is scroll-unlocked and native validation is off,
+    // so confirm agreement here before sending.
+    if (!tcCheckbox.checked) {
+      document.querySelector('.wo-tc')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (tcHint) tcHint.textContent = 'Please read and agree to the Terms & Conditions before submitting.';
+      return;
+    }
+
     const btn = form.querySelector('.wo-btn') as HTMLButtonElement;
     btn.disabled = true; btn.textContent = 'Submitting…';
-    fetch(form.action, {
-      method: 'POST',
-      body: new FormData(form),
-      headers: { 'Accept': 'application/json' }
-    }).then(res => {
-      if (res.ok) {
-        form.reset();
-        (form.querySelector('.wo-success') as HTMLElement).style.display = 'block';
-        (form.querySelector('.wo-error') as HTMLElement).style.display = 'none';
-        btn.style.display = 'none';
-      } else { throw new Error(); }
-    }).catch(() => {
-      (form.querySelector('.wo-error') as HTMLElement).style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Submit Work Authorization →';
-    });
+
+    try { await compressPhotos(photosInput); } catch { /* fall back to originals */ }
+    form.submit(); // native multipart POST → endpoint → 303 → /work-order/thank-you
   });
 </script>
