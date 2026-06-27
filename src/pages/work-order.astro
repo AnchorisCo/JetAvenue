@@ -22,27 +22,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <input type="hidden" name="brand" value="jetavenue.net" />
         <input type="text" class="wo-hp" name="company_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
-        <!-- ── Registration & Serial ── -->
+        <!-- ── Contact Info ── -->
         <div class="wo-row">
           <div class="wo-group">
-            <label for="wo-reg">Registration No. <span class="req">*</span></label>
-            <input type="text" id="wo-reg" name="registration_number" placeholder="N12345" required />
+            <label for="wo-contact">Name of Contact <span class="req">*</span></label>
+            <input type="text" id="wo-contact" name="name" placeholder="Full name" required />
           </div>
           <div class="wo-group">
-            <label for="wo-serial">Aircraft Serial No. <span class="req">*</span></label>
-            <input type="text" id="wo-serial" name="aircraft_serial" placeholder="e.g. 6050" required />
+            <label for="wo-company">Company Name</label>
+            <input type="text" id="wo-company" name="company" placeholder="Flight department or operator name" />
           </div>
-        </div>
-
-        <!-- ── Contact Info ── -->
-        <div class="wo-group">
-          <label for="wo-contact">Name of Contact <span class="req">*</span></label>
-          <input type="text" id="wo-contact" name="name" placeholder="Full name" required />
-        </div>
-
-        <div class="wo-group">
-          <label for="wo-company">Company Name</label>
-          <input type="text" id="wo-company" name="company" placeholder="Flight department or operator name" />
         </div>
 
         <div class="wo-group">
@@ -71,9 +60,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <input type="email" id="wo-email" name="email" placeholder="you@example.com" required />
         </div>
 
-        <div class="wo-group">
-          <label for="wo-aircraft-type">Aircraft Type <span class="req">*</span></label>
-          <input type="text" id="wo-aircraft-type" name="aircraft_type" placeholder="e.g. Gulfstream G550" required />
+        <div class="wo-row3">
+          <div class="wo-group">
+            <label for="wo-aircraft-type">Aircraft Type <span class="req">*</span></label>
+            <input type="text" id="wo-aircraft-type" name="aircraft_type" placeholder="e.g. Gulfstream G550" required />
+          </div>
+          <div class="wo-group">
+            <label for="wo-reg">Registration No. <span class="req">*</span></label>
+            <input type="text" id="wo-reg" name="registration_number" placeholder="N12345" required />
+          </div>
+          <div class="wo-group">
+            <label for="wo-serial">Aircraft Serial No. <span class="req">*</span></label>
+            <input type="text" id="wo-serial" name="aircraft_serial" placeholder="e.g. 6050" required />
+          </div>
         </div>
 
         <div class="wo-group">
@@ -129,27 +128,27 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
 
         <!-- ── Service Info ── -->
-        <div class="wo-group">
-          <label>Is your aircraft AOG? <span class="req">*</span></label>
-          <div class="wo-radios">
-            <label class="radio-label"><input type="radio" name="aog" value="No" /> No</label>
-            <label class="radio-label"><input type="radio" name="aog" value="Yes" /> Yes</label>
+        <div class="wo-row3">
+          <div class="wo-group">
+            <label>Is your aircraft AOG? <span class="req">*</span></label>
+            <div class="wo-radios">
+              <label class="radio-label"><input type="radio" name="aog" value="No" /> No</label>
+              <label class="radio-label"><input type="radio" name="aog" value="Yes" /> Yes</label>
+            </div>
           </div>
-        </div>
-
-        <div class="wo-group">
-          <label>Plane Locked? <span class="req">*</span></label>
-          <div class="wo-radios">
-            <label class="radio-label"><input type="radio" name="plane_locked" value="No" checked /> No</label>
-            <label class="radio-label"><input type="radio" name="plane_locked" value="Yes" /> Yes</label>
+          <div class="wo-group">
+            <label>Plane Locked? <span class="req">*</span></label>
+            <div class="wo-radios">
+              <label class="radio-label"><input type="radio" name="plane_locked" value="No" checked /> No</label>
+              <label class="radio-label"><input type="radio" name="plane_locked" value="Yes" /> Yes</label>
+            </div>
           </div>
-        </div>
-
-        <div class="wo-group">
-          <label>Overtime Authorized?</label>
-          <div class="wo-radios">
-            <label class="radio-label"><input type="radio" name="overtime" value="Yes" checked /> Yes</label>
-            <label class="radio-label"><input type="radio" name="overtime" value="No" /> No</label>
+          <div class="wo-group">
+            <label>Overtime Authorized?</label>
+            <div class="wo-radios">
+              <label class="radio-label"><input type="radio" name="overtime" value="Yes" checked /> Yes</label>
+              <label class="radio-label"><input type="radio" name="overtime" value="No" /> No</label>
+            </div>
           </div>
         </div>
 
@@ -218,24 +217,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
 
         <!-- ── Payment & Authorization ── -->
-        <div class="wo-group">
-          <label for="wo-payment">Method of Payment <span class="req">*</span></label>
-          <select id="wo-payment" name="payment_method" required>
-            <option value="">Please choose…</option>
-            <option value="Credit Card">Credit Card</option>
-            <option value="Bank/ACH">Bank / ACH Transfer</option>
-            <option value="COD">COD</option>
-          </select>
-        </div>
-
-        <p class="pay-note">For your security, do not enter card or bank account numbers on this form. Jet Avenue will follow up to arrange payment.</p>
-
-        <div class="wo-group">
-          <label for="wo-authorized-by">Service Authorized By <span class="req">*</span></label>
-          <input type="text" id="wo-authorized-by" name="authorized_by" placeholder="Full name of authorizing party" required />
-        </div>
-
-        <div class="wo-row">
+        <div class="wo-row-auth">
+          <div class="wo-group">
+            <label for="wo-payment">Method Type <span class="req">*</span></label>
+            <select id="wo-payment" name="payment_method" required>
+              <option value="">Please choose…</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Bank/ACH">Bank / ACH Transfer</option>
+              <option value="COD">COD</option>
+            </select>
+          </div>
+          <div class="wo-group">
+            <label for="wo-authorized-by">Service Authorized By <span class="req">*</span></label>
+            <input type="text" id="wo-authorized-by" name="authorized_by" placeholder="Full name of authorizing party" required />
+          </div>
           <div class="wo-group">
             <label for="wo-auth-date">Date <span class="req">*</span></label>
             <input type="date" id="wo-auth-date" name="authorization_date" required />
@@ -346,10 +341,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .wo-body { padding: 64px 0 96px; }
   .wo-container { max-width: 780px; margin: 0 auto; padding: 0 var(--space-md); }
 
-  .wo-group { margin-bottom: 20px; }
+  .wo-group { margin-bottom: 30px; }
   .wo-group label:not(.radio-label):not(.checkbox-label) {
     display: block; font-family: var(--font-heading); font-size: 11px;
-    font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
     color: var(--color-ink); margin-bottom: 7px;
   }
   .req { color: var(--color-brand); }
@@ -372,17 +367,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .wo-group textarea { resize: vertical; }
 
   .wo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .wo-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .wo-row-auth { display: grid; grid-template-columns: 1fr 1.2fr 0.9fr; gap: 16px; align-items: start; }
 
   .wo-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 4px; }
   .wo-grid-csz { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; }
 
   /* Honeypot — visually hidden, off-screen, not announced to AT */
   .wo-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
-
-  .pay-note {
-    font-family: var(--font-body); font-size: 12.5px; color: var(--color-body);
-    margin: -8px 0 0; line-height: 1.5;
-  }
 
   .wo-radios { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 4px; }
   .wo-radios--wrap { gap: 12px 24px; }
@@ -412,7 +404,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .upload-zone-label {
     display: block;
     font-family: var(--font-heading); font-size: 11px; font-weight: 700;
-    letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-ink);
+    letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-ink);
     line-height: 1.3; margin-bottom: 3px;
   }
   .upload-zone-note {
@@ -459,7 +451,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     width: 100%; display: flex; align-items: center; justify-content: space-between;
     padding: 14px 16px; background: var(--color-surface);
     border: none; cursor: pointer; font-family: var(--font-heading);
-    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
     color: var(--color-ink);
   }
   .wo-accordion-btn:hover { background: #ebebeb; }
@@ -530,8 +522,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .wo-btn:hover { background: var(--color-brand-dark); }
   .wo-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+  /* Stack the payment / authorized-by / date row in narrower windows so the
+     native date picker can't open past the right edge of the screen. */
+  @media (max-width: 800px) {
+    .wo-row-auth { grid-template-columns: 1fr; }
+  }
+
   @media (max-width: 600px) {
     .wo-row { grid-template-columns: 1fr; }
+    .wo-row3 { grid-template-columns: 1fr; }
     .wo-grid-3 { grid-template-columns: 1fr 1fr; }
     .wo-grid-csz { grid-template-columns: 1fr; }
     .upload-zones { grid-template-columns: 1fr; }
@@ -612,6 +611,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   setupUpload('upload-sow', 'sow-list');
   setupUpload('upload-pics', 'pics-list');
   setupUpload('upload-po', 'po-list');
+
+  // Phone / Fax — format as a US number while typing: (123) 456-7890
+  function formatUsPhone(el: HTMLInputElement) {
+    const d = el.value.replace(/\D/g, '').slice(0, 10);
+    let out = d;
+    if (d.length > 6) out = `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+    else if (d.length > 3) out = `(${d.slice(0, 3)}) ${d.slice(3)}`;
+    else if (d.length > 0) out = `(${d.slice(0, 3)}`;
+    el.value = out;
+  }
+  ['wo-phone', 'wo-fax'].forEach((id) => {
+    const el = document.getElementById(id) as HTMLInputElement | null;
+    el?.addEventListener('input', () => formatUsPhone(el));
+  });
 
   // Set auth date to today by default
   const today = new Date().toISOString().split('T')[0];
