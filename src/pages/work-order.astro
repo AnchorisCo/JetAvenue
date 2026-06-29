@@ -50,14 +50,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <input type="tel" id="wo-phone" name="phone" placeholder="(800) 555-0100" required />
           </div>
           <div class="wo-group">
-            <label for="wo-fax">Fax</label>
-            <input type="tel" id="wo-fax" name="fax" placeholder="(optional)" />
+            <label for="wo-email">Email <span class="req">*</span></label>
+            <input type="email" id="wo-email" name="email" placeholder="you@example.com" required />
           </div>
-        </div>
-
-        <div class="wo-group">
-          <label for="wo-email">Email <span class="req">*</span></label>
-          <input type="email" id="wo-email" name="email" placeholder="you@example.com" required />
         </div>
 
         <div class="wo-row3">
@@ -237,6 +232,39 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
         </div>
 
+        <!-- ── Credit Card details (shown only when Method Type = Credit Card) ── -->
+        <div class="wo-cc" id="cc-fields" hidden>
+          <p class="cc-note">Provide the cardholder details below. For your security we never collect the card number, expiration, or CVV. Those are arranged with Jet Avenue directly.</p>
+          <div class="wo-group">
+            <label>Card Type</label>
+            <div class="wo-radios">
+              <label class="radio-label"><input type="radio" name="cc_type" value="Visa" /> Visa</label>
+              <label class="radio-label"><input type="radio" name="cc_type" value="Mastercard" /> Mastercard</label>
+              <label class="radio-label"><input type="radio" name="cc_type" value="Amex" /> Amex</label>
+              <label class="radio-label"><input type="radio" name="cc_type" value="Discover" /> Discover</label>
+            </div>
+          </div>
+          <div class="wo-row">
+            <div class="wo-group">
+              <label for="cc-name">Name on Card</label>
+              <input type="text" id="cc-name" name="cc_name" placeholder="Cardholder name" />
+            </div>
+            <div class="wo-group">
+              <label for="cc-phone">Cardholder Phone</label>
+              <input type="tel" id="cc-phone" name="cc_phone" placeholder="(800) 555-0100" />
+            </div>
+          </div>
+          <div class="wo-group">
+            <label>Cardholder Billing Address</label>
+            <input type="text" name="cc_billing_street" placeholder="Street address" style="margin-bottom:8px" />
+            <div class="wo-grid-csz">
+              <input type="text" name="cc_billing_city" placeholder="City" />
+              <input type="text" name="cc_billing_state" placeholder="State" />
+              <input type="text" name="cc_billing_zip" placeholder="Zip code" />
+            </div>
+          </div>
+        </div>
+
         <!-- ── T&C ── -->
         <div class="wo-tc">
           <p class="tc-heading">Jet Avenue Inc. — Terms &amp; Conditions</p>
@@ -372,6 +400,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .wo-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 4px; }
   .wo-grid-csz { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; }
+
+  /* Credit-card detail block, revealed when Method Type = Credit Card */
+  .wo-cc { border-left: 3px solid var(--color-brand); padding-left: 18px; margin: 0 0 30px; }
+  .wo-cc[hidden] { display: none; }
+  .cc-note {
+    font-family: var(--font-body); font-size: 12.5px; color: var(--color-body);
+    line-height: 1.55; margin: 0 0 20px;
+  }
 
   /* Honeypot — visually hidden, off-screen, not announced to AT */
   .wo-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
@@ -544,6 +580,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     document.querySelector('.wo-accordion')?.classList.toggle('open');
   });
 
+  // Reveal credit-card detail fields only when Method Type = Credit Card
+  const paySelect = document.getElementById('wo-payment') as HTMLSelectElement | null;
+  const ccFields = document.getElementById('cc-fields');
+  paySelect?.addEventListener('change', () => {
+    if (ccFields) ccFields.hidden = paySelect.value !== 'Credit Card';
+  });
+
   // "Other" location enables text input
   document.querySelectorAll('input[name="location"]').forEach((radio) => {
     radio.addEventListener('change', () => {
@@ -621,7 +664,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     else if (d.length > 0) out = `(${d.slice(0, 3)}`;
     el.value = out;
   }
-  ['wo-phone', 'wo-fax'].forEach((id) => {
+  ['wo-phone', 'cc-phone'].forEach((id) => {
     const el = document.getElementById(id) as HTMLInputElement | null;
     el?.addEventListener('input', () => formatUsPhone(el));
   });
