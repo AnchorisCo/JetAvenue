@@ -41,9 +41,9 @@ There is **no test mode / dry-run** on that endpoint, and the admin recipients a
 
 ## GitHub-org transfer notes (2026-07-07)
 
-Transferred `AnchorisLLC/JetAvenue` → `vevric/JetAvenue` (repo id preserved: `1263427006`). What that transfer could and couldn't touch:
+Transferred `AnchorisLLC/JetAvenue` → `AnchorisCo/JetAvenue` (repo id preserved: `1263427006`). What that transfer could and couldn't touch:
 
-- **At risk (repo-tied):** only auto-deploy of this static site. Like every project moved into vevric, the Vercel Git connection goes stale on transfer (link metadata follows, credential doesn't) and must be **reconnected once** in the Vercel dashboard (Settings → Git → Disconnect → Connect `vevric/JetAvenue`). The live site stays up on its last build until then.
+- **At risk (repo-tied):** only auto-deploy of this static site. Like every project moved into AnchorisCo, the Vercel Git connection goes stale on transfer (link metadata follows, credential doesn't) and must be **reconnected once** in the Vercel dashboard (Settings → Git → Disconnect → Connect `AnchorisCo/JetAvenue`). The live site stays up on its last build until then.
 - **Not at risk:** no GitHub Actions, secrets, webhooks, deploy keys, or branch protection existed on this repo. The store → PDF → email chain is untouched because it lives on RecoilMedia.com, and the form keeps working throughout because it posts to the absolute recoilmedia.com URL.
 
 ## Testing
