@@ -60,19 +60,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div class="form-card">
           <h3>Send Us a Message</h3>
           <p class="form-sub">We respond within one business day.</p>
-          <form id="contact-form" action="https://www.recoilone.com/api/forms/inquiry" method="POST">
+          <form id="contact-form" action="https://www.recoilone.com/api/forms/inquiry" method="POST" novalidate>
 
-            <!-- Routing (which brand) + honeypot spam trap -->
+            <!-- Routing (which brand) + hidden bot trap (renamed so autofill skips it) + timing -->
             <input type="hidden" name="brand" value="jetavenue.net" />
-            <input type="text" class="cf-hp" name="company_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <input type="text" class="cf-hp" name="hp_check" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <input type="hidden" name="fill_ms" id="cf-fillms" />
 
             <div class="cf-row">
               <div class="cf-group">
-                <label for="cf-name">Your Name</label>
+                <label for="cf-name">Your Name <span class="cf-req">*</span></label>
                 <input type="text" id="cf-name" name="name" placeholder="John Smith" required />
               </div>
               <div class="cf-group">
-                <label for="cf-email">Email Address</label>
+                <label for="cf-email">Email Address <span class="cf-req">*</span></label>
                 <input type="email" id="cf-email" name="email" placeholder="john@example.com" required />
               </div>
             </div>
@@ -99,8 +100,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               <input type="text" id="cf-aircraft" name="aircraft" placeholder="e.g. Gulfstream G550" />
             </div>
             <div class="cf-group">
-              <label for="cf-message">Tell us about your needs</label>
-              <textarea id="cf-message" name="message" rows="4" placeholder="Location, aircraft, service needed, timeline…"></textarea>
+              <label for="cf-message">Tell us about your needs <span class="cf-req">*</span></label>
+              <textarea id="cf-message" name="message" rows="4" placeholder="Location, aircraft, service needed, timeline…" required></textarea>
             </div>
             <button type="submit" class="cf-btn">Send Message →</button>
           </form>
@@ -223,8 +224,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .cf-btn:hover { background: var(--color-brand-dark); }
   .cf-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-  /* Honeypot — visually hidden, off-screen, not announced to AT */
-  .cf-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
+  /* Bot trap — display:none so autofill / password managers skip it (a real person never fills it) */
+  .cf-hp { display: none; }
+  .cf-req { color: var(--color-brand); font-size: 15px; line-height: 0; vertical-align: -2px; }
+  .cf-group { position: relative; }
+  .cf-group input.field-invalid, .cf-group select.field-invalid, .cf-group textarea.field-invalid { border-color: #E03131; background: #fff7f7; }
 
   @media (min-width: 860px) {
     .contact-grid { grid-template-columns: 1fr 1.3fr; gap: 60px; }
@@ -235,4 +239,39 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .form-card { padding: 28px 20px; }
   }
 </style>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const loadTime = Date.now();
+
+  function clearMarks() {
+    form.querySelectorAll('.req-pill').forEach(p => p.remove());
+    form.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
+  }
+  function addPill(group: Element | null) {
+    if (!group || group.querySelector('.req-pill')) return;
+    const label = group.querySelector('label');
+    if (!label) return;
+    const pill = document.createElement('span'); pill.className = 'req-pill'; pill.textContent = 'Required';
+    // Inline styles: Astro scopes stylesheet rules to elements it renders, and this pill is created at runtime.
+    pill.style.cssText = 'display:inline-flex;align-items:center;vertical-align:middle;background:#E03131;color:#fff;font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 3px 9px rgba(224,49,49,0.32);margin-left:6px;';
+    label.appendChild(pill);
+  }
+  function validate(): Element | null {
+    clearMarks();
+    let first: Element | null = null;
+    ['name', 'email', 'message'].forEach(n => {
+      const el = form.querySelector(`[name="${n}"]`) as HTMLInputElement | null;
+      if (el && !el.value.trim()) { el.classList.add('field-invalid'); const g = el.closest('.cf-group'); addPill(g); first = first || g; }
+    });
+    return first;
+  }
+  form.addEventListener('input', (e) => { const el = e.target as HTMLInputElement; if (el && el.value && el.value.trim()) el.classList.remove('field-invalid'); });
+  form.addEventListener('submit', (e) => {
+    const first = validate();
+    if (first) { e.preventDefault(); first.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+    (document.getElementById('cf-fillms') as HTMLInputElement).value = String(Date.now() - loadTime);
+    // valid → native POST proceeds → inquiry endpoint → 303 → thank-you
+  });
+</script>
 
