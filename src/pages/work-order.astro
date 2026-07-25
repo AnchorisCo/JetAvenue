@@ -18,9 +18,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="wo-container">
       <form id="wo-form" action="https://www.recoilone.com/api/forms/work-order" method="POST" novalidate enctype="multipart/form-data">
 
-        <!-- Routing (which brand) + honeypot spam trap -->
+        <!-- Routing (which brand) + hidden bot trap (renamed so autofill won't fill it) + timing + upload refs -->
         <input type="hidden" name="brand" value="jetavenue.net" />
-        <input type="text" class="wo-hp" name="company_url" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <input type="text" class="wo-hp" name="hp_check" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <input type="hidden" name="fill_ms" id="wo-fillms" />
+        <input type="hidden" name="uploaded_files" id="wo-uploaded" />
 
         <!-- ── Contact Info ── -->
         <div class="wo-row">
@@ -175,7 +177,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
             <div class="upload-zone">
               <div class="upload-zone-header">
-                <span class="upload-zone-label">Scope of Work (SOW) <span class="req">*</span></span>
+                <span class="upload-zone-label">SOW <span class="req">*</span></span>
                 <span class="upload-zone-note">PDF or image</span>
               </div>
               <input type="file" id="upload-sow" name="sow" accept=".pdf,image/jpeg,image/png,image/webp,image/heic,image/gif,image/tiff" multiple class="upload-input" required />
@@ -195,7 +197,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
             <div class="upload-zone">
               <div class="upload-zone-header">
-                <span class="upload-zone-label">Purchase Order (PO)</span>
+                <span class="upload-zone-label">PO</span>
                 <span class="upload-zone-note">PDF or image</span>
               </div>
               <input type="file" id="upload-po" name="po" accept=".pdf,image/jpeg,image/png,image/webp,image/heic,image/gif,image/tiff" multiple class="upload-input" />
@@ -266,11 +268,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           </div>
         </div>
 
-        <!-- ── T&C ── -->
-        <div class="wo-tc">
-          <p class="tc-heading">Jet Avenue Inc. — Terms &amp; Conditions</p>
-          <p class="tc-scroll-hint" id="tc-hint">Scroll to read the full terms, then check the box before submission.</p>
-          <div class="tc-scroll" id="tc-scroll">
+        <!-- ── Terms & Conditions (full text opens in the modal; agreement recorded on submit) ── -->
+        <div class="wo-tc-row" id="termsgroup">
+          <span class="wo-tc-title">Jet Avenue Inc. Terms &amp; Conditions <span class="req">*</span></span>
+          <button type="button" class="wo-review-btn" id="reviewTerms">Review Terms &amp; Conditions</button>
+          <span class="wo-tc-agreed" id="termsAgreedBadge">&#10003; Terms accepted</span>
+          <input type="hidden" name="terms_agreed" id="wo-terms" value="" />
+        </div>
+
+        <div class="wo-overlay" id="termsOverlay" aria-hidden="true">
+          <div class="wo-modal" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
+            <div class="wo-modal-head">
+              <h2 id="termsTitle">Terms &amp; Conditions</h2>
+              <button type="button" class="wo-modal-x" id="termsClose" aria-label="Close">&times;</button>
+            </div>
+            <div class="wo-modal-body" id="termsBody">
 
             <p>These terms and conditions ("Terms and Conditions") accompany Jet Avenue Inc. ("JetAvenue") Work Authorization and, if accepted as is, form the complete agreement between JetAvenue and Customer ("Agreement"). Customer is deemed to accept these Terms and Conditions by a written or electronic acknowledgment of the accompanying Work Authorization or by commencement of work as contemplated by this Agreement. Acceptance hereof by Customer supersedes, nullifies and voids any other terms, conditions, representations, or understandings, in oral or written form, with respect to the Work Authorization referencing this Agreement.</p>
 
@@ -331,11 +343,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
             <p>These Terms and Conditions are accepted and approved upon submission of this Work Authorization.</p>
 
+            </div>
+            <div class="wo-modal-foot">
+              <button type="button" class="wo-modal-cancel" id="termsCancel">Cancel</button>
+              <button type="button" class="wo-modal-agree" id="termsAgree">I Agree</button>
+            </div>
           </div>
-          <label class="checkbox-label" id="tc-check-label">
-            <input type="checkbox" name="terms_agreed" id="wo-terms" required disabled />
-            <span>I have read and agree to the Terms and Conditions <span class="req">*</span></span>
-          </label>
         </div>
 
         <button type="submit" class="wo-btn">Submit Work Authorization →</button>
@@ -368,7 +381,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .wo-body { padding: 64px 0 96px; }
-  .wo-container { max-width: 780px; margin: 0 auto; padding: 0 var(--space-md); }
+  .wo-container { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-md); }
 
   .wo-group { margin-bottom: 30px; }
   .wo-group label:not(.radio-label):not(.checkbox-label) {
@@ -414,8 +427,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-weight: 600; margin: 0 0 18px;
   }
 
-  /* Honeypot — visually hidden, off-screen, not announced to AT */
-  .wo-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
+  /* Bot trap — display:none so browser autofill / password managers skip it (a real human never
+     fills it); a naive bot that fills every field still trips it. */
+  .wo-hp { display: none; }
 
   .wo-radios { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 4px; }
   .wo-radios--wrap { gap: 12px 24px; }
@@ -555,13 +569,59 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .checkbox-label input { accent-color: var(--color-brand); width: 16px; height: 16px; flex: 0 0 16px; margin-top: 2px; }
 
   .wo-btn {
-    width: 100%; padding: 15px;
+    width: auto; padding: 15px 44px;
     background: var(--color-brand); color: #fff; border: none; border-radius: 3px;
     font-family: var(--font-heading); font-size: 15px; font-weight: 700;
     letter-spacing: 0.04em; cursor: pointer; transition: background 0.18s;
   }
   .wo-btn:hover { background: var(--color-brand-dark); }
   .wo-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .wo-uploading { font-size: 13px; color: var(--color-body); margin: 12px 0 0; }
+
+  /* Required-field pill markers (appear on submit next to an empty required field's label) */
+  .wo-group, .wo-tc-row, .upload-zone { position: relative; }
+  .req-pill {
+    display: inline-flex; align-items: center; gap: 5px; vertical-align: middle;
+    background: #E03131; color: #fff; font-family: var(--font-heading);
+    font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 3px 9px 3px 8px; border-radius: 999px; white-space: nowrap;
+    box-shadow: 0 3px 9px rgba(224,49,49,0.32); margin-left: 4px;
+  }
+  .field-invalid input, .field-invalid select, .field-invalid textarea,
+  input.field-invalid, select.field-invalid, textarea.field-invalid,
+  .upload-zone.field-invalid { border-color: #E03131 !important; background: #fff7f7; }
+
+  /* Terms row + Review button (replaces the scroll-to-unlock box) */
+  .wo-tc-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 14px; margin-bottom: 30px; }
+  .wo-tc-title { font-family: var(--font-heading); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-ink); }
+  .wo-review-btn {
+    background: none; border: 1.5px solid var(--color-brand); color: var(--color-brand);
+    font-family: var(--font-heading); font-size: 12px; font-weight: 700; letter-spacing: 0.05em;
+    text-transform: uppercase; padding: 9px 18px; border-radius: 3px; cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .wo-review-btn:hover { background: var(--color-brand); color: #fff; }
+  .wo-tc-agreed { display: none; align-items: center; gap: 8px; color: #2b8a3e; font-size: 13px; font-weight: 600; }
+  .wo-tc-row.agreed .wo-review-btn { display: none; }
+  .wo-tc-row.agreed .wo-tc-agreed { display: inline-flex; }
+
+  /* Terms modal */
+  .wo-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 1000; }
+  .wo-overlay.open { display: flex; }
+  .wo-modal { background: #fff; border-radius: 16px; box-shadow: 0 30px 80px rgba(0,0,0,0.4); width: 100%; max-width: 640px; max-height: 82vh; display: flex; flex-direction: column; overflow: hidden; }
+  .wo-modal-head { display: flex; align-items: center; justify-content: space-between; padding: 22px 26px 14px; }
+  .wo-modal-head h2 { font-family: var(--font-heading); font-size: 18px; font-weight: 800; margin: 0; color: var(--color-ink); }
+  .wo-modal-x { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--color-border); background: #fff; color: #555; font-size: 20px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .wo-modal-x:hover { background: var(--color-surface); }
+  .wo-modal-body { overflow-y: auto; padding: 4px 26px 8px; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); }
+  .wo-modal-body p { font-family: var(--font-body); font-size: 12.5px; line-height: 1.7; color: var(--color-body); margin: 12px 0; }
+  .wo-modal-body p strong { color: var(--color-ink); }
+  .wo-modal-body .tc-section { font-family: var(--font-heading); font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-ink); margin: 18px 0 8px; border-top: 1px solid var(--color-border); padding-top: 14px; }
+  .wo-modal-foot { display: flex; align-items: center; justify-content: space-between; padding: 16px 26px; }
+  .wo-modal-cancel { background: none; border: none; color: #888; font-family: var(--font-body); font-size: 14px; text-decoration: underline; cursor: pointer; }
+  .wo-modal-cancel:hover { color: var(--color-ink); }
+  .wo-modal-agree { background: var(--color-brand); color: #fff; border: none; border-radius: 6px; font-family: var(--font-heading); font-size: 14px; font-weight: 700; padding: 11px 26px; cursor: pointer; }
+  .wo-modal-agree:hover { background: var(--color-brand-dark); }
 
   /* Stack the payment / authorized-by / date row in narrower windows so the
      native date picker can't open past the right edge of the screen. */
@@ -601,17 +661,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     });
   });
 
-  // T&C scroll gate
-  const tcScroll = document.getElementById('tc-scroll');
-  const tcCheckbox = document.getElementById('wo-terms') as HTMLInputElement;
-  const tcHint = document.getElementById('tc-hint');
-
-  tcScroll?.addEventListener('scroll', () => {
-    const atBottom = tcScroll.scrollTop + tcScroll.clientHeight >= tcScroll.scrollHeight - 8;
-    if (atBottom && tcCheckbox.disabled) {
-      tcCheckbox.disabled = false;
-      if (tcHint) { tcHint.textContent = 'Please check the box below to confirm agreement.'; tcHint.classList.add('done'); }
-    }
+  // ── Terms modal (opens the full terms; "I Agree" records agreement) ──
+  let termsAgreed = false;
+  const termsOverlay = document.getElementById('termsOverlay') as HTMLElement;
+  const termsBody = document.getElementById('termsBody') as HTMLElement;
+  function openTerms() { termsOverlay.classList.add('open'); termsOverlay.setAttribute('aria-hidden', 'false'); if (termsBody) termsBody.scrollTop = 0; }
+  function closeTerms() { termsOverlay.classList.remove('open'); termsOverlay.setAttribute('aria-hidden', 'true'); }
+  document.getElementById('reviewTerms')?.addEventListener('click', openTerms);
+  document.getElementById('termsClose')?.addEventListener('click', closeTerms);
+  document.getElementById('termsCancel')?.addEventListener('click', closeTerms);
+  termsOverlay?.addEventListener('click', (e) => { if (e.target === termsOverlay) closeTerms(); });
+  document.getElementById('termsAgree')?.addEventListener('click', () => {
+    termsAgreed = true;
+    (document.getElementById('wo-terms') as HTMLInputElement).value = 'yes';
+    const tg = document.getElementById('termsgroup');
+    tg?.classList.add('agreed');
+    tg?.querySelector('.req-pill')?.remove();
+    closeTerms();
   });
 
   // File upload zones with add/remove
@@ -725,43 +791,116 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   const form = document.getElementById('wo-form') as HTMLFormElement;
   const photosInput = document.getElementById('upload-pics') as HTMLInputElement;
+  const loadTime = Date.now();
 
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    // Terms gate: the checkbox is scroll-unlocked and native validation is off,
-    // so confirm agreement here before sending.
-    if (!tcCheckbox.checked) {
-      document.querySelector('.wo-tc')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      if (tcHint) tcHint.textContent = 'Please read and agree to the Terms & Conditions before submitting.';
-      return;
+  // ── Required-field validation with red pills ──
+  function clearMarks() {
+    form.querySelectorAll('.req-pill').forEach(p => p.remove());
+    form.querySelectorAll('.field-invalid').forEach(el => el.classList.remove('field-invalid'));
+  }
+  function addPill(group: Element | null) {
+    if (!group || group.querySelector('.req-pill')) return;
+    const label = group.querySelector('label') || group.querySelector('.upload-zone-label') || group.querySelector('.wo-tc-title');
+    if (!label) return;
+    const pill = document.createElement('span'); pill.className = 'req-pill'; pill.textContent = 'Required';
+    // Styled inline (not via the scoped stylesheet) because Astro scopes CSS to elements it renders,
+    // and this pill is created at runtime, so a scoped .req-pill rule would never match it.
+    pill.style.cssText = 'display:inline-flex;align-items:center;vertical-align:middle;background:#E03131;color:#fff;font-size:10px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:3px 9px 3px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 3px 9px rgba(224,49,49,0.32);margin-left:6px;';
+    label.appendChild(pill);
+  }
+  function markField(name: string, first: Element | null): Element | null {
+    const el = form.querySelector(`[name="${name}"]`) as HTMLInputElement | null;
+    if (el && !el.value.trim()) { el.classList.add('field-invalid'); const g = el.closest('.wo-group'); addPill(g); return first || g; }
+    return first;
+  }
+  function markRadio(name: string, first: Element | null): Element | null {
+    if (!form.querySelector(`input[name="${name}"]:checked`)) {
+      const g = (form.querySelector(`input[name="${name}"]`) as HTMLElement | null)?.closest('.wo-group') || null;
+      addPill(g); return first || g;
     }
-
-    // Credit-card details are required when Method Type = Credit Card.
-    const ccError = document.getElementById('cc-error');
+    return first;
+  }
+  function validate(): Element | null {
+    clearMarks();
+    let first: Element | null = null;
+    ['name','phone','email','billing_street','billing_city','billing_state','billing_zip',
+     'aircraft_type','registration_number','aircraft_serial','expected_departure',
+     'service_required','payment_method','authorized_by','authorization_date'].forEach(n => { first = markField(n, first); });
+    ['location','aog'].forEach(n => { first = markRadio(n, first); });
+    const locOther = document.getElementById('locOtherText') as HTMLInputElement | null;
+    if (form.querySelector('input[name="location"][value="Other"]:checked') && locOther && !locOther.value.trim()) {
+      locOther.classList.add('field-invalid'); const g = locOther.closest('.wo-group'); addPill(g); first = first || g;
+    }
+    const sow = document.getElementById('upload-sow') as HTMLInputElement;
+    if (!sow.files || !sow.files.length) { const zone = sow.closest('.upload-zone'); if (zone) { zone.classList.add('field-invalid'); addPill(zone); first = first || zone; } }
     if (paySelect && paySelect.value === 'Credit Card') {
-      const ccLabels: Record<string, string> = {
-        cc_type: 'card type', cc_name: 'name on card', cc_phone: 'cardholder phone',
-        cc_billing_street: 'billing street', cc_billing_city: 'city',
-        cc_billing_state: 'state', cc_billing_zip: 'zip code',
-      };
-      const missing = Object.keys(ccLabels).filter((n) => {
-        if (n === 'cc_type') return !form.querySelector('input[name="cc_type"]:checked');
-        const el = form.querySelector(`[name="${n}"]`) as HTMLInputElement | null;
-        return !el || !el.value.trim();
-      }).map((n) => ccLabels[n]);
-      if (missing.length) {
-        if (ccError) { ccError.textContent = 'Please complete the credit card details: ' + missing.join(', ') + '.'; ccError.hidden = false; }
-        document.getElementById('cc-fields')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-      if (ccError) ccError.hidden = true;
+      ['cc_name','cc_phone','cc_billing_street','cc_billing_city','cc_billing_state','cc_billing_zip'].forEach(n => { first = markField(n, first); });
+      first = markRadio('cc_type', first);
+    }
+    if (!termsAgreed) { const g = document.getElementById('termsgroup'); addPill(g); first = first || g; }
+    return first;
+  }
+  // Clear a field's red outline as the customer fixes it
+  form.addEventListener('input', (e) => {
+    const el = e.target as HTMLInputElement;
+    if (el && el.value && typeof el.value === 'string' && el.value.trim()) el.classList.remove('field-invalid');
+  });
+
+  // ── Direct-to-storage upload (past the ~4.5 MB request wall) ──
+  const ENDPOINT = 'https://www.recoilone.com/api/forms';
+  async function uploadOne(field: string, file: File, uploadId: string) {
+    const r = await fetch(`${ENDPOINT}/upload-url`, {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ brand: 'jetavenue.net', field, filename: file.name, size: file.size, uploadId }),
+    });
+    if (!r.ok) throw new Error('upload-url ' + r.status);
+    const { path, signedUrl } = await r.json();
+    const put = await fetch(signedUrl, { method: 'PUT', headers: { 'content-type': file.type || 'application/octet-stream', 'x-upsert': 'true' }, body: file });
+    if (!put.ok) throw new Error('put ' + put.status);
+    return { field, path, name: file.name, contentType: file.type || 'application/octet-stream' };
+  }
+
+  const CAP = 10 * 1024 * 1024;
+  const btn = form.querySelector('.wo-btn') as HTMLButtonElement;
+  const resetBtn = () => { btn.disabled = false; btn.textContent = 'Submit Work Authorization →'; };
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const first = validate();
+    if (first) { first.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+
+    btn.disabled = true; btn.textContent = 'Preparing files…';
+    try { await compressPhotos(photosInput); } catch { /* keep originals */ }
+
+    const filesToUpload: { field: string; file: File }[] = [];
+    ([['upload-sow', 'sow'], ['upload-pics', 'photos'], ['upload-po', 'po']] as const).forEach(([id, field]) => {
+      const inp = document.getElementById(id) as HTMLInputElement;
+      Array.from(inp.files ?? []).forEach(f => filesToUpload.push({ field, file: f }));
+    });
+
+    const total = filesToUpload.reduce((s, x) => s + x.file.size, 0);
+    if (total > CAP) {
+      alert(`Your attached files total ${(total / 1048576).toFixed(1)} MB. Please keep the combined size under 10 MB — remove or shrink a file, then submit again.`);
+      resetBtn(); return;
     }
 
-    const btn = form.querySelector('.wo-btn') as HTMLButtonElement;
-    btn.disabled = true; btn.textContent = 'Submitting…';
+    (document.getElementById('wo-fillms') as HTMLInputElement).value = String(Date.now() - loadTime);
 
-    try { await compressPhotos(photosInput); } catch { /* fall back to originals */ }
-    form.submit(); // native multipart POST → endpoint → 303 → /work-order/thank-you
+    btn.textContent = 'Uploading files…';
+    const uploadId = 'u' + Math.random().toString(36).slice(2, 10);
+    const refs: Array<{ field: string; path: string; name: string; contentType: string }> = [];
+    try {
+      for (const { field, file } of filesToUpload) refs.push(await uploadOne(field, file, uploadId));
+    } catch (err) {
+      alert('There was a problem uploading your files. Please try again, or reduce their size.');
+      resetBtn(); return;
+    }
+
+    (document.getElementById('wo-uploaded') as HTMLInputElement).value = JSON.stringify(refs);
+    // Clear the file inputs so the native POST carries only fields + references (tiny, never hits the wall)
+    ['upload-sow', 'upload-pics', 'upload-po'].forEach(id => { try { (document.getElementById(id) as HTMLInputElement).files = new DataTransfer().files; } catch {} });
+
+    btn.textContent = 'Submitting…';
+    form.submit(); // native POST (fields + references only) → endpoint → 303 → thank-you
   });
 </script>
