@@ -83,7 +83,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <!-- ── Aircraft Details (collapsible) ── -->
         <div class="wo-accordion">
           <button type="button" class="wo-accordion-btn" id="acToggle">
-            <span>Aircraft Details</span>
+            <span>Aircraft Details <span class="req">*</span></span>
             <svg class="ac-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="wo-accordion-body" id="acBody">
@@ -93,12 +93,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 <input type="text" name="engine_model" placeholder="e.g. BR700" />
               </div>
               <div class="wo-group">
-                <label>Aircraft Total Time</label>
-                <input type="text" name="aircraft_total_time" placeholder="Hours" />
+                <label>Aircraft Total Time <span class="req">*</span></label>
+                <input type="text" name="aircraft_total_time" placeholder="Hours" required />
               </div>
               <div class="wo-group">
-                <label>Aircraft Total Landings</label>
-                <input type="text" name="aircraft_total_landings" placeholder="Cycles" />
+                <label>Aircraft Total Landings <span class="req">*</span></label>
+                <input type="text" name="aircraft_total_landings" placeholder="Cycles" required />
               </div>
             </div>
             <div class="wo-grid-3">
@@ -177,7 +177,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
             <div class="upload-zone">
               <div class="upload-zone-header">
-                <span class="upload-zone-label">SOW <span class="req">*</span></span>
+                <span class="upload-zone-label">Work Scope <span class="req">*</span></span>
                 <span class="upload-zone-note">PDF or image</span>
               </div>
               <input type="file" id="upload-sow" name="sow" accept=".pdf,image/jpeg,image/png,image/webp,image/heic,image/gif,image/tiff" multiple class="upload-input" required />
@@ -570,6 +570,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   .wo-btn {
     width: auto; padding: 15px 44px;
+    display: block; margin-left: auto; margin-right: auto;
     background: var(--color-brand); color: #fff; border: none; border-radius: 3px;
     font-family: var(--font-heading); font-size: 15px; font-weight: 700;
     letter-spacing: 0.04em; cursor: pointer; transition: background 0.18s;
@@ -592,7 +593,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .upload-zone.field-invalid { border-color: #E03131 !important; background: #fff7f7; }
 
   /* Terms row + Review button (replaces the scroll-to-unlock box) */
-  .wo-tc-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 14px; margin-bottom: 30px; }
+  .wo-tc-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px 14px; margin-bottom: 30px; }
   .wo-tc-title { font-family: var(--font-heading); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-ink); }
   .wo-review-btn {
     background: none; border: 1.5px solid var(--color-brand); color: var(--color-brand);
@@ -825,6 +826,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     let first: Element | null = null;
     ['name','phone','email','billing_street','billing_city','billing_state','billing_zip',
      'aircraft_type','registration_number','aircraft_serial','expected_departure',
+     'aircraft_total_time','aircraft_total_landings',
      'service_required','payment_method','authorized_by','authorization_date'].forEach(n => { first = markField(n, first); });
     ['location','aog'].forEach(n => { first = markRadio(n, first); });
     const locOther = document.getElementById('locOtherText') as HTMLInputElement | null;
@@ -838,6 +840,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       first = markRadio('cc_type', first);
     }
     if (!termsAgreed) { const g = document.getElementById('termsgroup'); addPill(g); first = first || g; }
+    // The Aircraft Details drawer collapses to zero height, so a required field inside it would be
+    // flagged where nobody can see it, and scrolled to while still hidden. Open the drawer whenever
+    // it holds a flagged field, so the customer is never told to fix something they cannot see.
+    if (form.querySelector('#acBody .field-invalid, #acBody .req-pill')) {
+      document.querySelector('.wo-accordion')?.classList.add('open');
+    }
     return first;
   }
   // Clear a field's red outline as the customer fixes it
