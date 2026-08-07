@@ -801,7 +801,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
   function addPill(group: Element | null) {
     if (!group || group.querySelector('.req-pill')) return;
-    const label = group.querySelector('label') || group.querySelector('.upload-zone-label') || group.querySelector('.wo-tc-title');
+    // Section titles are checked BEFORE a plain <label>: inside an upload zone the "Choose Files"
+    // control is itself a <label>, so a label-first lookup pinned the pill inside that button
+    // instead of beside the zone's title. Ordinary field groups have neither of the first two,
+    // so they still fall through to their own <label>.
+    const label = group.querySelector('.upload-zone-label') || group.querySelector('.wo-tc-title') || group.querySelector('label');
     if (!label) return;
     const pill = document.createElement('span'); pill.className = 'req-pill'; pill.textContent = 'Required';
     // Styled inline (not via the scoped stylesheet) because Astro scopes CSS to elements it renders,
