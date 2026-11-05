@@ -178,9 +178,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div class="upload-zone">
               <div class="upload-zone-header">
                 <span class="upload-zone-label">Work Scope <span class="req">*</span></span>
-                <span class="upload-zone-note">PDF or image</span>
+                <span class="upload-zone-note">PDF, image, Word, or Excel</span>
               </div>
-              <input type="file" id="upload-sow" name="sow" accept=".pdf,image/jpeg,image/png,image/webp,image/heic,image/gif,image/tiff" multiple class="upload-input" required />
+              <input type="file" id="upload-sow" name="sow" accept=".pdf,image/jpeg,image/png,image/webp,image/heic,image/gif,image/tiff,.doc,.docx,.xls,.xlsx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple class="upload-input" required />
               <label for="upload-sow" class="upload-btn">Choose Files</label>
               <ul class="file-list" id="sow-list"></ul>
             </div>
